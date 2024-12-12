@@ -76,6 +76,8 @@
 #include <asm/unistd.h>
 #include <asm/mmu_context.h>
 
+#include <rsbac/hooks.h>
+
 #include "exit.h"
 
 /*
@@ -879,6 +881,11 @@ void __noreturn do_exit(long code)
 	struct task_struct *tsk = current;
 	int group_dead;
 
+#ifdef CONFIG_RSBAC
+	union rsbac_target_id_t rsbac_target_id;
+	union rsbac_attribute_value_t rsbac_attribute_value;
+#endif
+
 	WARN_ON(irqs_disabled());
 
 	synchronize_group_exit(tsk, code);
@@ -894,6 +901,25 @@ void __noreturn do_exit(long code)
 
 	io_uring_files_cancel();
 	exit_signals(tsk);  /* sets PF_EXITING */
+
+
+#ifdef CONFIG_RSBAC
+	rsbac_pr_debug(aef, "do_exit() [sys_exit()]: calling ADF\n");
+	rsbac_target_id.process = get_task_pid(tsk, PIDTYPE_PID);
+	if (rsbac_target_id.process) {
+		rsbac_attribute_value.dummy = 0;
+		if (!rsbac_adf_request(R_TERMINATE,
+					rsbac_target_id.process,
+					T_PROCESS,
+					rsbac_target_id,
+					A_none,
+					rsbac_attribute_value)) {
+			rsbac_printk(KERN_WARNING
+					"do_exit() [sys_exit()]: ADF request for TERMINATE returned NOT_GRANTED!\n");
+		}
+		put_pid(rsbac_target_id.process);
+	}
+#endif
 
 	seccomp_filter_release(tsk);
 
