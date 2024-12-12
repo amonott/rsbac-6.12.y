@@ -21,6 +21,8 @@
 #include <linux/statfs.h>
 #include <linux/exportfs.h>
 
+#include <rsbac/hooks.h>
+
 #include <asm/ioctls.h>
 
 #include "../fsnotify.h"
@@ -1705,6 +1707,12 @@ static int do_fanotify_mark(int fanotify_fd, unsigned int flags, __u64 mask,
 	u32 umask = 0;
 	int ret;
 
+#ifdef CONFIG_RSBAC
+	enum  rsbac_target_t rsbac_target;
+	union rsbac_target_id_t rsbac_target_id;
+	union rsbac_attribute_value_t rsbac_attribute_value;
+#endif
+
 	pr_debug("%s: fanotify_fd=%d flags=%x dfd=%d pathname=%p mask=%llx\n",
 		 __func__, fanotify_fd, flags, dfd, pathname, mask);
 
@@ -1904,8 +1912,25 @@ static int do_fanotify_mark(int fanotify_fd, unsigned int flags, __u64 mask,
 	/* create/update an inode mark */
 	switch (mark_cmd) {
 	case FAN_MARK_ADD:
+#ifdef CONFIG_RSBAC
+		rsbac_pr_debug(aef, "calling ADF\n");
+		rsbac_target_id.dev.type = D_block;
+		rsbac_target_id.dev.major = RSBAC_MAJOR(mnt->mnt_sb->s_dev);
+		rsbac_target_id.dev.minor = RSBAC_MINOR(mnt->mnt_sb->s_dev);
+		rsbac_attribute_value.dummy = 0;
+		if (!rsbac_adf_request(R_TRACE,
+					task_pid(current),
+					T_DEV,
+					rsbac_target_id,
+					A_none,
+					rsbac_attribute_value)) {
+			ret = -EPERM;
+		} else
+#endif
+
 		ret = fanotify_add_mark(group, obj, obj_type, mask, flags,
 					fsid);
+
 		break;
 	case FAN_MARK_REMOVE:
 		ret = fanotify_remove_mark(group, obj, obj_type, mask, flags,
