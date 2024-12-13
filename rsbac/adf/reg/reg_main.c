@@ -4,9 +4,9 @@
 /* Facility (ADF) - REG / Decision Module Registration */
 /* File: rsbac/adf/reg/main.c                        */
 /*                                                   */
-/* Author and (c) 1999-2020: Amon Ott <ao@rsbac.org> */
+/* Author and (c) 1999-2024: Amon Ott <ao@rsbac.org> */
 /*                                                   */
-/* Last modified: 29/Dec/2020                        */
+/* Last modified: 13/Dec/2024                        */
 /*************************************************** */
 
 #include <linux/types.h>
@@ -25,6 +25,7 @@
 #include <rsbac/aci_data_structures.h>
 #include <rsbac/adf.h>
 #include <rsbac/adf_main.h>
+#include <rsbac/adf_syshelpers.h>
 #include <rsbac/error.h>
 #include <rsbac/helpers.h>
 #include <rsbac/getname.h>

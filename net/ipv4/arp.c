@@ -1314,22 +1314,19 @@ int arp_ioctl(struct net *net, unsigned int cmd, void __user *arg)
 		return -EINVAL;
 
 #ifdef CONFIG_RSBAC_NET_DEV
-		rsbac_pr_debug(aef, "calling ADF\n");
-		strncpy(rsbac_target_id.netdev, r.arp_dev, RSBAC_IFNAMSIZ);
-		rsbac_target_id.netdev[RSBAC_IFNAMSIZ] = 0;
-		rsbac_attribute_value.dummy = 0;
-		if (!rsbac_adf_request(rsbac_request,
-					task_pid(current),
-					T_NETDEV,
-					rsbac_target_id,
-					A_none,
-					rsbac_attribute_value))
-		{
-			err = -EPERM;
-			goto out;
-		}
+	rsbac_pr_debug(aef, "calling ADF\n");
+	strncpy(rsbac_target_id.netdev, r.arp_dev, RSBAC_IFNAMSIZ);
+	rsbac_target_id.netdev[RSBAC_IFNAMSIZ] = 0;
+	rsbac_attribute_value.dummy = 0;
+	if (!rsbac_adf_request(rsbac_request,
+				task_pid(current),
+				T_NETDEV,
+				rsbac_target_id,
+				A_none,
+				rsbac_attribute_value)) {
+		return -EPERM;
+	}
 #endif
-
 
 	switch (cmd) {
 	case SIOCDARP:
