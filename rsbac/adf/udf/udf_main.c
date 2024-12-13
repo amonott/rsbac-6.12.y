@@ -4,9 +4,9 @@
 /* Facility (ADF) - User Space Decision Facility     */
 /* File: rsbac/adf/udf/udf_main.c                    */
 /*                                                   */
-/* Author and (c) 1999-2021: Amon Ott <ao@rsbac.org> */
+/* Author and (c) 1999-2024: Amon Ott <ao@rsbac.org> */
 /*                                                   */
-/* Last modified: 06/Dec/2021                        */
+/* Last modified: 13/Dec/2024                        */
 /*************************************************** */
 
 #include <linux/init.h>
@@ -311,7 +311,7 @@ static inline int udf_reset_checked(struct rsbac_fs_file_t file)
 }
 #endif
 
-enum rsbac_adf_req_ret_t udf_do_check(union rsbac_target_id_t tid)
+static enum rsbac_adf_req_ret_t udf_do_check(union rsbac_target_id_t tid)
 {
 	char *envp[] = { "HOME=/",
 			"TERM=linux",

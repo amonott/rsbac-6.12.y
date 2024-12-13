@@ -3,7 +3,7 @@
 /* Implementation of ACL data structures             */
 /* Author and (c) 1999-2024: Amon Ott <ao@rsbac.org> */
 /*                                                   */
-/* Last modified: 25/Jul/2024                        */
+/* Last modified: 13/Dec/2024                        */
 /*************************************************** */
 
 #include <linux/types.h>
@@ -2265,9 +2265,9 @@ static void __init registration_error(int err, char *listname)
 
 
 #ifdef CONFIG_RSBAC_INIT_DELAY
-void acl_create_def(void)
+static void acl_create_def(void)
 #else
-void __init acl_create_def(void)
+static void __init acl_create_def(void)
 #endif
 {
 	if (!rsbac_list_count(default_fd_handle)) {
@@ -2490,9 +2490,9 @@ void __init acl_create_def(void)
 }
 
 #ifdef CONFIG_RSBAC_INIT_DELAY
-void acl_create_def2(void)
+static void acl_create_def2(void)
 #else
-void __init acl_create_def2(void)
+static void __init acl_create_def2(void)
 #endif
 {
 	if (!rsbac_list_count(default_u_handle)) {

@@ -3,7 +3,7 @@
 /* Implementation of RC data structures              */
 /* Author and (C) 1999-2024: Amon Ott <ao@rsbac.org> */
 /*                                                   */
-/* Last modified: 08/Nov/2024                        */
+/* Last modified: 13/Dec/2024                        */
 /*************************************************** */
 
 #include <linux/string.h>
@@ -21,6 +21,7 @@
 #include <rsbac/helpers.h>
 #include <rsbac/fs.h>
 #include <rsbac/adf.h>
+#include <rsbac/rc.h>
 #include <rsbac/acl.h>
 #include <rsbac/getname.h>
 #include <rsbac/rc_getname.h>
