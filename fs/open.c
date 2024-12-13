@@ -790,9 +790,9 @@ SYSCALL_DEFINE1(fchdir, unsigned int, fd)
 #ifdef CONFIG_RSBAC
 	if (!error) {
 		rsbac_pr_debug(aef, "calling ADF\n");
-		rsbac_target_id.dir.device = file_inode(f.file)->i_sb->s_dev;
-		rsbac_target_id.dir.inode  = file_inode(f.file)->i_ino;
-		rsbac_target_id.dir.dentry_p = f.file->f_path.dentry;
+		rsbac_target_id.dir.device = file_inode(fd_file(f))->i_sb->s_dev;
+		rsbac_target_id.dir.inode  = file_inode(fd_file(f))->i_ino;
+		rsbac_target_id.dir.dentry_p = fd_file(f)->f_path.dentry;
 		rsbac_attribute_value.dummy = 0;
 		if (!rsbac_adf_request(R_CHDIR,
 					task_pid(current),
