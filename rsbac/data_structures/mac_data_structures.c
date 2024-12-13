@@ -1,9 +1,9 @@
 /*************************************************** */
 /* Rule Set Based Access Control                     */
-/* Implementation of MAC data structures            */
-/* Author and (c) 1999-2020: Amon Ott <ao@rsbac.org> */
+/* Implementation of MAC data structures             */
+/* Author and (c) 1999-2024: Amon Ott <ao@rsbac.org> */
 /*                                                   */
-/* Last modified: 29/Dec/2020                        */
+/* Last modified: 13/Dec/2024                        */
 /*************************************************** */
 
 #include <linux/types.h>
@@ -21,6 +21,7 @@
 #include <rsbac/helpers.h>
 #include <rsbac/adf.h>
 #include <rsbac/aci.h>
+#include <rsbac/mac.h>
 #include <rsbac/lists.h>
 #include <rsbac/proc_fs.h>
 #include <rsbac/rkmem.h>

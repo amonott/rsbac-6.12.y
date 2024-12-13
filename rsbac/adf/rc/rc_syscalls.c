@@ -6,7 +6,7 @@
 /*                                                   */
 /* Author and (c) 1999-2024: Amon Ott <ao@rsbac.org> */
 /*                                                   */
-/* Last modified: 19/Sep/2024                        */
+/* Last modified: 13/Dec/2024                        */
 /*************************************************** */
 
 #include <linux/string.h>
@@ -21,6 +21,7 @@
 #include <rsbac/rc_getname.h>
 #include <rsbac/rkmem.h>
 #include <rsbac/um.h>
+#include <rsbac/adf_syshelpers.h>
 
 /************************************************* */
 /*           Global Variables                      */
@@ -34,12 +35,6 @@
 int rsbac_rc_test_role_admin(rsbac_boolean_t modify);
 
 int rsbac_rc_test_admin_roles(rsbac_rc_role_id_t t_role, rsbac_boolean_t modify);
-
-enum rsbac_adf_req_ret_t
-         rsbac_rc_check_type_comp(enum  rsbac_target_t          target,
-                                  rsbac_rc_type_id_t      type,
-                            enum  rsbac_adf_request_t     request,
-                                  rsbac_pid_t             caller_pid);
 
 /************************************************* */
 /*          Internal Help functions                */
@@ -151,7 +146,7 @@ int rsbac_rc_sys_copy_type (
               return -RSBAC_EINVALIDTARGET;
           }
         /* need ADMIN right to source type or caller must be role_admin */
-        if(   (rsbac_rc_check_type_comp(target, from_type, (enum rsbac_adf_request_t) RCR_ADMIN, 0) != GRANTED)
+        if(   (rsbac_rc_check_type_comp(target, from_type, RCR_ADMIN, 0) != GRANTED)
            && (err=rsbac_rc_test_role_admin(FALSE))
           )
           {
@@ -252,7 +247,7 @@ int rsbac_rc_sys_get_item(
             case RI_type_fd_need_secdel:
               if(target != RT_TYPE)
                 return -RSBAC_EINVALIDTARGET;
-              if(   (err=rsbac_rc_check_type_comp(T_FILE, tid.type, (enum rsbac_adf_request_t) RCR_ADMIN, 0))
+              if(   (err=rsbac_rc_check_type_comp(T_FILE, tid.type, RCR_ADMIN, 0))
                  && (err=rsbac_rc_test_role_admin(FALSE))
                 )
                 {
@@ -349,7 +344,7 @@ int rsbac_rc_sys_set_item(
                                tid.type);
                 return 0;
               }
-              if(   (rsbac_rc_check_type_comp(T_FILE, tid.type, (enum rsbac_adf_request_t) RCR_ADMIN, 0) == NOT_GRANTED)
+              if(   (rsbac_rc_check_type_comp(T_FILE, tid.type, RCR_ADMIN, 0) == NOT_GRANTED)
                  && (err=rsbac_rc_test_role_admin(TRUE))
                 )
                 {
@@ -388,7 +383,7 @@ int rsbac_rc_sys_set_item(
                                tid.type);
                 return 0;
               }
-              if(   (rsbac_rc_check_type_comp(T_DEV, tid.type, (enum rsbac_adf_request_t) RCR_ADMIN, 0) == NOT_GRANTED)
+              if(   (rsbac_rc_check_type_comp(T_DEV, tid.type, RCR_ADMIN, 0) == NOT_GRANTED)
                  && (err=rsbac_rc_test_role_admin(TRUE))
                 )
                 {
@@ -425,7 +420,7 @@ int rsbac_rc_sys_set_item(
                                tid.type);
                 return 0;
               }
-              if(   (rsbac_rc_check_type_comp(T_IPC, tid.type, (enum rsbac_adf_request_t) RCR_ADMIN, 0) == NOT_GRANTED)
+              if(   (rsbac_rc_check_type_comp(T_IPC, tid.type, RCR_ADMIN, 0) == NOT_GRANTED)
                  && (err=rsbac_rc_test_role_admin(TRUE))
                 )
                 {
@@ -462,7 +457,7 @@ int rsbac_rc_sys_set_item(
                                tid.type);
                 return 0;
               }
-              if(   (rsbac_rc_check_type_comp(T_USER, tid.type, (enum rsbac_adf_request_t) RCR_ADMIN, 0) == NOT_GRANTED)
+              if(   (rsbac_rc_check_type_comp(T_USER, tid.type, RCR_ADMIN, 0) == NOT_GRANTED)
                  && (err=rsbac_rc_test_role_admin(TRUE))
                 )
                 {
@@ -499,7 +494,7 @@ int rsbac_rc_sys_set_item(
                                tid.type);
                 return 0;
               }
-              if(   (rsbac_rc_check_type_comp(T_PROCESS, tid.type, (enum rsbac_adf_request_t) RCR_ADMIN, 0) == NOT_GRANTED)
+              if(   (rsbac_rc_check_type_comp(T_PROCESS, tid.type, RCR_ADMIN, 0) == NOT_GRANTED)
                  && (err=rsbac_rc_test_role_admin(TRUE))
                 )
                 {
@@ -527,7 +522,7 @@ int rsbac_rc_sys_set_item(
             case RI_type_scd_name:
               if(target != RT_TYPE)
                 return -RSBAC_EINVALIDTARGET;
-              if(   (rsbac_rc_check_type_comp(T_SCD, tid.type, (enum rsbac_adf_request_t) RCR_ADMIN, 0) == NOT_GRANTED)
+              if(   (rsbac_rc_check_type_comp(T_SCD, tid.type, RCR_ADMIN, 0) == NOT_GRANTED)
                  && (err=rsbac_rc_test_role_admin(TRUE))
                 )
                 {
@@ -564,7 +559,7 @@ int rsbac_rc_sys_set_item(
                                tid.type);
                 return 0;
               }
-              if(   (rsbac_rc_check_type_comp(T_GROUP, tid.type, (enum rsbac_adf_request_t) RCR_ADMIN, 0) == NOT_GRANTED)
+              if(   (rsbac_rc_check_type_comp(T_GROUP, tid.type, RCR_ADMIN, 0) == NOT_GRANTED)
                  && (err=rsbac_rc_test_role_admin(TRUE))
                 )
                 {
@@ -601,7 +596,7 @@ int rsbac_rc_sys_set_item(
                                tid.type);
                 return 0;
               }
-              if(   (rsbac_rc_check_type_comp(T_NETDEV, tid.type, (enum rsbac_adf_request_t) RCR_ADMIN, 0) == NOT_GRANTED)
+              if(   (rsbac_rc_check_type_comp(T_NETDEV, tid.type, RCR_ADMIN, 0) == NOT_GRANTED)
                  && (err=rsbac_rc_test_role_admin(TRUE))
                 )
                 {
@@ -638,7 +633,7 @@ int rsbac_rc_sys_set_item(
                                tid.type);
                 return 0;
               }
-              if(   (rsbac_rc_check_type_comp(T_NETTEMP, tid.type, (enum rsbac_adf_request_t) RCR_ADMIN, 0) == NOT_GRANTED)
+              if(   (rsbac_rc_check_type_comp(T_NETTEMP, tid.type, RCR_ADMIN, 0) == NOT_GRANTED)
                  && (err=rsbac_rc_test_role_admin(TRUE))
                 )
                 {
@@ -675,7 +670,7 @@ int rsbac_rc_sys_set_item(
                                tid.type);
                 return 0;
               }
-              if(   (rsbac_rc_check_type_comp(T_NETOBJ, tid.type, (enum rsbac_adf_request_t) RCR_ADMIN, 0) == NOT_GRANTED)
+              if(   (rsbac_rc_check_type_comp(T_NETOBJ, tid.type, RCR_ADMIN, 0) == NOT_GRANTED)
                  && (err=rsbac_rc_test_role_admin(TRUE))
                 )
                 {
@@ -890,7 +885,7 @@ int rsbac_rc_sys_set_item(
                 {
                   enum rsbac_adf_req_ret_t result;
 
-                  result = rsbac_rc_check_type_comp(T_FILE, value.type_id, (enum rsbac_adf_request_t) RCR_ASSIGN, 0);
+                  result = rsbac_rc_check_type_comp(T_FILE, value.type_id, RCR_ASSIGN, 0);
                   if(   (   (result == NOT_GRANTED)
                          || (result == UNDEFINED)
                         )
@@ -976,7 +971,7 @@ int rsbac_rc_sys_set_item(
                 {
                   enum rsbac_adf_req_ret_t result;
 
-                  result = rsbac_rc_check_type_comp(T_USER, value.type_id, (enum rsbac_adf_request_t) RCR_ASSIGN, 0);
+                  result = rsbac_rc_check_type_comp(T_USER, value.type_id, RCR_ASSIGN, 0);
                   if(   (   (result == NOT_GRANTED)
                          || (result == UNDEFINED)
                         )
@@ -1038,7 +1033,7 @@ int rsbac_rc_sys_set_item(
                 {
                   enum rsbac_adf_req_ret_t result;
 
-                  result = rsbac_rc_check_type_comp(T_PROCESS, value.type_id, (enum rsbac_adf_request_t) RCR_ASSIGN, 0);
+                  result = rsbac_rc_check_type_comp(T_PROCESS, value.type_id, RCR_ASSIGN, 0);
                   if(   (   (result == NOT_GRANTED)
                          || (result == UNDEFINED)
                         )
@@ -1095,7 +1090,7 @@ int rsbac_rc_sys_set_item(
                 {
                   enum rsbac_adf_req_ret_t result;
 
-                  result = rsbac_rc_check_type_comp(T_IPC, value.type_id, (enum rsbac_adf_request_t) RCR_ASSIGN, 0);
+                  result = rsbac_rc_check_type_comp(T_IPC, value.type_id, RCR_ASSIGN, 0);
                   if(   (   (result == NOT_GRANTED)
                          || (result == UNDEFINED)
                         )
@@ -1152,7 +1147,7 @@ int rsbac_rc_sys_set_item(
                 {
                   enum rsbac_adf_req_ret_t result;
 
-                  result = rsbac_rc_check_type_comp(T_GROUP, value.type_id, (enum rsbac_adf_request_t) RCR_ASSIGN, 0);
+                  result = rsbac_rc_check_type_comp(T_GROUP, value.type_id, RCR_ASSIGN, 0);
                   if(   (   (result == NOT_GRANTED)
                          || (result == UNDEFINED)
                         )
@@ -1208,7 +1203,7 @@ int rsbac_rc_sys_set_item(
 				result =
 				    rsbac_rc_check_type_comp(T_UNIXSOCK,
 							     value.type_id,
-							     (enum rsbac_adf_request_t) RCR_ASSIGN,
+							     RCR_ASSIGN,
 							     0);
 				if (((result == NOT_GRANTED)
 				     || (result == UNDEFINED)
@@ -1670,7 +1665,7 @@ int rsbac_rc_select_fd_create_type(rsbac_rc_type_id_t type)
 	if (type != RC_type_use_fd) {
 		if (!rsbac_rc_type_exists(0, T_FILE, type))
 			return -RSBAC_EINVALIDVALUE;
-		if (!rsbac_rc_check_type_comp(T_FILE, type, (enum rsbac_adf_request_t) RCR_SELECT, task_pid(current))) {
+		if (!rsbac_rc_check_type_comp(T_FILE, type, RCR_SELECT, task_pid(current))) {
 #ifdef CONFIG_RSBAC_SOFTMODE
 			if(   !rsbac_softmode
 #ifdef CONFIG_RSBAC_SOFTMODE_IND
