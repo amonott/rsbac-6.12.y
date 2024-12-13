@@ -2184,25 +2184,25 @@ SYSCALL_DEFINE2(flock, unsigned int, fd, unsigned int, cmd)
 #ifdef CONFIG_RSBAC
 	rsbac_pr_debug(aef, "calling ADF\n");
 	rsbac_target = T_FILE;
-        rsbac_target_id.file.device = f.file->f_path.dentry->d_sb->s_dev;
-        rsbac_target_id.file.inode  = f.file->f_path.dentry->d_inode->i_ino;
-        rsbac_target_id.file.dentry_p = f.file->f_path.dentry;
-	if (S_ISDIR(f.file->f_path.dentry->d_inode->i_mode))
+	rsbac_target_id.file.device = fd_file(f)->f_path.dentry->d_sb->s_dev;
+	rsbac_target_id.file.inode  = fd_file(f)->f_path.dentry->d_inode->i_ino;
+	rsbac_target_id.file.dentry_p = fd_file(f)->f_path.dentry;
+	if (S_ISDIR(fd_file(f)->f_path.dentry->d_inode->i_mode))
 		rsbac_target = T_DIR;
-	else if (S_ISFIFO(f.file->f_path.dentry->d_inode->i_mode))
+	else if (S_ISFIFO(fd_file(f)->f_path.dentry->d_inode->i_mode))
 		rsbac_target = T_FIFO;
-	else if (S_ISLNK(f.file->f_path.dentry->d_inode->i_mode))
+	else if (S_ISLNK(fd_file(f)->f_path.dentry->d_inode->i_mode))
 		rsbac_target = T_SYMLINK;
-	else if (f.file->f_path.dentry->d_inode->i_rsbac_memfd) {
+	else if (fd_file(f)->f_path.dentry->d_inode->i_rsbac_memfd) {
 		rsbac_target = T_IPC;
 		rsbac_target_id.ipc.type = I_memfd;
-		rsbac_target_id.ipc.id.id_nr = (u_long) f.file->f_path.dentry->d_inode;
+		rsbac_target_id.ipc.id.id_nr = (u_long) fd_file(f)->f_path.dentry->d_inode;
 	}
-	else if (S_ISSOCK(f.file->f_path.dentry->d_inode->i_mode)) {
-		if(f.file->f_path.dentry->d_sb->s_magic == SOCKFS_MAGIC) {
+	else if (S_ISSOCK(fd_file(f)->f_path.dentry->d_inode->i_mode)) {
+		if(fd_file(f)->f_path.dentry->d_sb->s_magic == SOCKFS_MAGIC) {
 			rsbac_target = T_IPC;
 			rsbac_target_id.ipc.type = I_anonunix;
-			rsbac_target_id.ipc.id.id_nr = f.file->f_path.dentry->d_inode->i_ino;
+			rsbac_target_id.ipc.id.id_nr = fd_file(f)->f_path.dentry->d_inode->i_ino;
 		} else
 			rsbac_target = T_UNIXSOCK;
 	}

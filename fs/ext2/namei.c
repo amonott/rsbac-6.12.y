@@ -373,7 +373,6 @@ static int ext2_rename (struct mnt_idmap * idmap,
 		}
 		err = ext2_set_link(new_dir, new_de, new_folio, old_inode, true);
 		folio_release_kmap(new_folio, new_de);
-
 		if (err)
 			goto out_dir;
 

@@ -6,7 +6,7 @@
 /*                                                   */
 /* Author and (c) 1999-2024: Amon Ott <ao@rsbac.org> */
 /*                                                   */
-/* Last modified: 29/Jul/2024                        */
+/* Last modified: 12/Dec/2024                        */
 /*************************************************** */
 
 #include <linux/string.h>
@@ -22,6 +22,7 @@
 #include <rsbac/debug.h>
 #include <rsbac/rkmem.h>
 #include <rsbac/adf_main.h>
+#include <rsbac/adf_syshelpers.h>
 #ifdef CONFIG_RSBAC_NET_OBJ
 #include <net/sock.h>
 #endif
@@ -211,22 +212,6 @@ rsbac_boolean_t rsbac_acl_check_super(enum  rsbac_target_t target,
     /* give up */
     return FALSE;
 }
-
-
-rsbac_boolean_t rsbac_acl_check_forward(enum  rsbac_target_t target,
-                                union rsbac_target_id_t tid,
-                                      rsbac_uid_t user,
-                                      rsbac_acl_rights_vector_t rights);
-
-rsbac_boolean_t rsbac_acl_check_super(enum  rsbac_target_t target,
-                              union rsbac_target_id_t tid,
-                                    rsbac_uid_t user);
-
-rsbac_boolean_t rsbac_acl_check_right(enum  rsbac_target_t target,
-                              union rsbac_target_id_t tid,
-                                    rsbac_uid_t user,
-                                    rsbac_pid_t caller_pid,
-                              enum  rsbac_adf_request_t request);
 
 /************************************************* */
 /*          Externally visible functions           */

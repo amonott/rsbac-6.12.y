@@ -1040,17 +1040,17 @@ static int loop_configure(struct loop_device *lo, blk_mode_t mode,
 
 #ifdef CONFIG_RSBAC
 	rsbac_pr_debug(aef, "[lo_ioctl()]: calling ADF for FILE/DEV\n");
-	if (S_ISREG(inode->i_mode)) {
+	if (S_ISREG(mapping->host->i_mode)) {
 		rsbac_target = T_FILE;
 		rsbac_target_id.dir.device = file->f_path.dentry->d_sb->s_dev;
-		rsbac_target_id.dir.inode  = inode->i_ino;
+		rsbac_target_id.dir.inode  = mapping->host->i_ino;
 		rsbac_target_id.dir.dentry_p = file->f_path.dentry;
 	}
 	else { /* must be block */
 		rsbac_target = T_DEV;
 		rsbac_target_id.dev.type = D_block;
-		rsbac_target_id.dev.major = RSBAC_MAJOR(inode->i_rdev);
-		rsbac_target_id.dev.minor = RSBAC_MINOR(inode->i_rdev);
+		rsbac_target_id.dev.major = RSBAC_MAJOR(mapping->host->i_rdev);
+		rsbac_target_id.dev.minor = RSBAC_MINOR(mapping->host->i_rdev);
 	}
 	rsbac_attribute_value.dummy = 0;
 	if (!rsbac_adf_request(R_MOUNT,

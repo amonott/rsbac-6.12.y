@@ -4,9 +4,9 @@
 /* Facility (ADF) - Access Control Lists (ACL)        */
 /* File: rsbac/adf/acl/acl_main.c                     */
 /*                                                    */
-/* Author and (c) 1999-2023: Amon Ott <ao@rsbac.org>  */
+/* Author and (c) 1999-2024: Amon Ott <ao@rsbac.org>  */
 /*                                                    */
-/* Last modified: 18/Dec/2023                         */
+/* Last modified: 12/Dec/2024                         */
 /**************************************************** */
 
 #include <linux/string.h>
@@ -38,10 +38,6 @@ rsbac_list_ta_number_t acl_learn_ta = 0;
 /************************************************* */
 
 /* in acl_syscalls.c */
-rsbac_boolean_t rsbac_acl_check_super(enum  rsbac_target_t target,
-                              union rsbac_target_id_t tid,
-                                    rsbac_uid_t user);
-
 rsbac_boolean_t rsbac_acl_check_right(enum  rsbac_target_t target,
                               union rsbac_target_id_t tid,
                                     rsbac_uid_t user,

@@ -172,6 +172,22 @@ int rsbac_reg_syscall(rsbac_reg_handle_t handle,
 /****** ACL *******/
 
 #if defined(CONFIG_RSBAC_ACL) || defined(CONFIG_RSBAC_ACL_MAINT)
+
+rsbac_boolean_t rsbac_acl_check_super(enum  rsbac_target_t target,
+                              union rsbac_target_id_t tid,
+                                    rsbac_uid_t user);
+
+rsbac_boolean_t rsbac_acl_check_forward(enum  rsbac_target_t target,
+                                union rsbac_target_id_t tid,
+                                      rsbac_uid_t user,
+                                      rsbac_acl_rights_vector_t rights);
+
+rsbac_boolean_t rsbac_acl_check_right(enum  rsbac_target_t target,
+                              union rsbac_target_id_t tid,
+                                    rsbac_uid_t user,
+                                    rsbac_pid_t caller_pid,
+                              enum  rsbac_adf_request_t request);
+
 int rsbac_acl_sys_set_acl_entry(
          rsbac_list_ta_number_t      ta_number,
   enum   rsbac_target_t              target,

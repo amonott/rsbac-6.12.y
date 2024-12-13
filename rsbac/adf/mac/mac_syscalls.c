@@ -4,9 +4,9 @@
 /* Facility (ADF) - Mandatory Access Control         */
 /* File: rsbac/adf/mac/syscalls.c                    */
 /*                                                   */
-/* Author and (c) 1999-2016: Amon Ott <ao@rsbac.org> */
+/* Author and (c) 1999-2024: Amon Ott <ao@rsbac.org> */
 /*                                                   */
-/* Last modified: 04/Apr/2016                        */
+/* Last modified: 13/Dec/2024                        */
 /*************************************************** */
 
 #include <linux/string.h>
@@ -15,6 +15,7 @@
 #include <rsbac/aci.h>
 #include <rsbac/mac.h>
 #include <rsbac/adf_main.h>
+#include <rsbac/adf_syshelpers.h>
 #include <rsbac/error.h>
 #include <rsbac/helpers.h>
 #include <rsbac/getname.h>

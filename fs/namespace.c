@@ -2931,6 +2931,7 @@ static int do_loopback(struct path *path, const char *old_name,
 	}
 
 	parent = real_mount(path->mnt);
+
 #ifdef CONFIG_RSBAC
 	rsbac_pr_debug(aef, "[do_loopback() [sys_mount()]]: calling ADF for DIR\n");
 	rsbac_target_id.dir.device = old_path.dentry->d_sb->s_dev;

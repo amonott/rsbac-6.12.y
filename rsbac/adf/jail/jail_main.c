@@ -176,7 +176,7 @@ jail_check_sysrole(rsbac_uid_t owner,
 }
 
 #if defined(CONFIG_RSBAC_NET_OBJ)
-enum rsbac_adf_req_ret_t
+static enum rsbac_adf_req_ret_t
 jail_check_ip(rsbac_pid_t pid, union rsbac_target_id_t tid)
 {
 	rsbac_jail_ip_t jail_ip;
