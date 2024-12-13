@@ -1,9 +1,9 @@
 /*************************************************** */
 /* Rule Set Based Access Control                     */
 /* Implementation of User Management data structures */
-/* Author and (c) 1999-2021: Amon Ott <ao@rsbac.org> */
+/* Author and (c) 1999-2024: Amon Ott <ao@rsbac.org> */
 /*                                                   */
-/* Last modified: 07/Jan/2021                        */
+/* Last modified: 13/Dec/2024                        */
 /*************************************************** */
 
 #include <linux/types.h>
@@ -125,7 +125,7 @@ static int user_old_conv(void *old_desc,
 	return 0;
 }
 
-rsbac_list_conv_function_t *user_get_conv(rsbac_version_t old_version)
+static rsbac_list_conv_function_t *user_get_conv(rsbac_version_t old_version)
 {
 	switch (old_version) {
 	case RSBAC_UM_USER_OLD_LIST_VERSION:
@@ -151,7 +151,7 @@ static int user_old_subconv(void *old_desc,
 	return 0;
 }
 
-rsbac_list_conv_function_t *user_get_subconv(rsbac_version_t old_version)
+static rsbac_list_conv_function_t *user_get_subconv(rsbac_version_t old_version)
 {
 	switch (old_version) {
 	case RSBAC_UM_USER_OLD_LIST_VERSION:
@@ -187,7 +187,7 @@ static int group_old_conv(void *old_desc,
 	return 0;
 }
 
-rsbac_list_conv_function_t *group_get_conv(rsbac_version_t old_version)
+static rsbac_list_conv_function_t *group_get_conv(rsbac_version_t old_version)
 {
 	switch (old_version) {
 	case RSBAC_UM_GROUP_OLD_LIST_VERSION:
@@ -208,7 +208,7 @@ static int user_pwh_conv(void *old_desc,
 	return 0;
 }
 
-rsbac_list_conv_function_t *user_pwh_get_conv(rsbac_version_t old_version)
+static rsbac_list_conv_function_t *user_pwh_get_conv(rsbac_version_t old_version)
 {
 	switch (old_version) {
 	case RSBAC_UM_USER_PWHISTORY_OLD_LIST_VERSION:
@@ -228,7 +228,7 @@ static int user_pwh_subconv(void *old_desc,
 	return 0;
 }
 
-rsbac_list_conv_function_t *user_pwh_get_subconv(rsbac_version_t old_version)
+static rsbac_list_conv_function_t *user_pwh_get_subconv(rsbac_version_t old_version)
 {
 	switch (old_version) {
 	case RSBAC_UM_USER_PWHISTORY_OLD_LIST_VERSION:
@@ -247,7 +247,7 @@ static int user_pwo_conv(void *old_desc,
 	return 0;
 }
 
-rsbac_list_conv_function_t *user_pwo_get_conv(rsbac_version_t old_version)
+static rsbac_list_conv_function_t *user_pwo_get_conv(rsbac_version_t old_version)
 {
 	switch (old_version) {
 	case RSBAC_UM_ONETIME_OLD_LIST_VERSION:
@@ -266,7 +266,7 @@ static int user_pwo_subconv(void *old_desc,
 	return 0;
 }
 
-rsbac_list_conv_function_t *user_pwo_get_subconv(rsbac_version_t old_version)
+static rsbac_list_conv_function_t *user_pwo_get_subconv(rsbac_version_t old_version)
 {
 	switch (old_version) {
 	case RSBAC_UM_ONETIME_OLD_LIST_VERSION:
@@ -396,7 +396,7 @@ static int name_cache_compare(void *data1, void *data2)
 }
 #endif
 
-u_int rsbac_list_hash_name_cache(void * desc, __u8 hash_bits)
+static u_int rsbac_list_hash_name_cache(void * desc, __u8 hash_bits)
 {
 	u_int hash = 0;
 	char * p = desc;
@@ -815,7 +815,7 @@ static inline int get_hash_size(rsbac_um_pw_hash_type_t hash_num)
 	return hash_digest_size[hash_num];
 }
 
-int rsbac_um_hash(char *pass, __u32 salt, const char * hash_algo, rsbac_um_pw_hash_type_t hash_num)
+static int rsbac_um_hash(char *pass, __u32 salt, const char * hash_algo, rsbac_um_pw_hash_type_t hash_num)
 {
 	char *buffer;
 	struct crypto_shash *tfm;
