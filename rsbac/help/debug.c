@@ -4852,7 +4852,7 @@ static int ll_old_conv(
     return 0;
   }
 
-rsbac_list_conv_function_t * ll_get_conv(rsbac_version_t old_version)
+static rsbac_list_conv_function_t * ll_get_conv(rsbac_version_t old_version)
   {
     switch(old_version)
       {
