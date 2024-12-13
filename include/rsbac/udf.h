@@ -1,16 +1,22 @@
 /************************************ */
 /* Rule Set Based Access Control      */
-/* Author and (c) 1999-2021: Amon Ott */
+/* Author and (c) 1999-2024: Amon Ott */
 /* API:                               */
 /* Functions for Access               */
 /* Control Information / UDF          */
-/* Last modified: 03/Dec/2021         */
+/* Last modified: 13/Dec/2024         */
 /************************************ */
 
 #ifndef __RSBAC_UDF_H
 #define __RSBAC_UDF_H
 
 #include <rsbac/types.h>
+
+#ifdef CONFIG_RSBAC_INIT_DELAY
+int rsbac_init_udf(void);
+#else
+int rsbac_init_udf(void) __init;
+#endif
 
 /* Get ttl for new cache items in seconds */
 /* This function returns 0, if no cache is available, and the ttl value

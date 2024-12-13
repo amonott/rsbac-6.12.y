@@ -4,9 +4,9 @@
 /* Facility (ADF) - Authentification module          */
 /* File: rsbac/adf/auth/syscalls.c                   */
 /*                                                   */
-/* Author and (c) 1999-2019: Amon Ott <ao@rsbac.org> */
+/* Author and (c) 1999-2024: Amon Ott <ao@rsbac.org> */
 /*                                                   */
-/* Last modified: 03/Dec/2019                        */
+/* Last modified: 13/Dec/2024                        */
 /*************************************************** */
 
 #include <linux/string.h>
@@ -19,6 +19,7 @@
 #include <rsbac/debug.h>
 #include <rsbac/helpers.h>
 #include <rsbac/adf_main.h>
+#include <rsbac/adf_syshelpers.h>
 
 /************************************************* */
 /*           Global Variables                      */
