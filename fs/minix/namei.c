@@ -228,7 +228,6 @@ static int minix_rename(struct mnt_idmap *idmap,
 
 		err = minix_set_link(new_de, new_folio, old_inode);
 		folio_release_kmap(new_folio, new_de);
-
 		if (err)
 			goto out_dir;
 		inode_set_ctime_current(new_inode);

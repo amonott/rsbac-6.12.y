@@ -1942,9 +1942,9 @@ static int bprm_execve(struct linux_binprm *bprm)
 
 #ifdef CONFIG_RSBAC
 	rsbac_pr_debug(aef, "[sys_execve()]: calling ADF\n");
-	rsbac_target_id.file.device = file->f_path.dentry->d_sb->s_dev;
-	rsbac_target_id.file.inode  = file->f_path.dentry->d_inode->i_ino;
-	rsbac_target_id.file.dentry_p = file->f_path.dentry;
+	rsbac_target_id.file.device = bprm->file->f_path.dentry->d_sb->s_dev;
+	rsbac_target_id.file.inode  = bprm->file->f_path.dentry->d_inode->i_ino;
+	rsbac_target_id.file.dentry_p = bprm->file->f_path.dentry;
 	rsbac_attribute_value.dummy = 0;
 	if (!rsbac_adf_request(R_EXECUTE,
 				task_pid(current),
