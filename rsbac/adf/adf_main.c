@@ -5,7 +5,7 @@
 /*                                                   */
 /* Author and (c) 1999-2024: Amon Ott <ao@rsbac.org> */
 /*                                                   */
-/* Last modified: 29/Jun/2024                        */
+/* Last modified: 13/Dec/2024                        */
 /*************************************************** */
 
 #include <linux/string.h>
@@ -2680,7 +2680,6 @@ static int do_rsbac_sec_trunc(struct dentry * dentry_p,
 
         { /* taken from fs/read_write.c */
           file.f_pos = new_len;
-          file.f_version = 0;
         }
         memset(buffer,0,RSBAC_SEC_DEL_CHUNK_SIZE);
 

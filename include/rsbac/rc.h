@@ -5,7 +5,7 @@
 /* API: Data structures          */
 /* and functions for Access      */
 /* Control Information / RC      */
-/* Last modified: 16/Jan/2024    */
+/* Last modified: 13/Dec/2024    */
 /******************************* */
 
 #ifndef __RSBAC_RC_H
@@ -109,5 +109,16 @@ int rsbac_rc_get_list(rsbac_list_ta_number_t ta_number,
 		      __u32 ** array_pp, rsbac_time_t ** ttl_array_pp);
 
 int rsbac_rc_select_fd_create_type(rsbac_rc_type_id_t type);
+
+int rsbac_rc_test_admin_roles(rsbac_rc_role_id_t t_role,
+                              rsbac_boolean_t modify);
+
+int rsbac_rc_test_role_admin(rsbac_boolean_t modify);
+
+enum rsbac_adf_req_ret_t
+rsbac_rc_check_type_comp(enum rsbac_target_t target,
+                         rsbac_rc_type_id_t type,
+                         enum rsbac_rc_special_rights_t request,
+                         rsbac_pid_t caller_pid);
 
 #endif

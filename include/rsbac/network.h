@@ -1,9 +1,9 @@
 /************************************* */
 /* Rule Set Based Access Control       */
-/* Author and (c) 1999-2018:           */
+/* Author and (c) 1999-2024:           */
 /*   Amon Ott <ao@rsbac.org>           */
 /* Network helper functions            */
-/* Last modified: 18/Apr/2018          */
+/* Last modified: 12/Dec/2024          */
 /************************************* */
 
 #ifndef __RSBAC_NETWORK_H
@@ -31,8 +31,6 @@ static inline int rsbac_net_list_all_netdev(rsbac_netdev_id_t ** id_pp)
 //__u32 rsbac_net_make_mask_u32(__u8 valid_bits);
 
 int rsbac_net_compare_data(void * data1, void * data2);
-
-// void rsbac_net_obj_cleanup(rsbac_net_obj_id_t netobj);
 
 int rsbac_ta_net_lookup_templates(
          rsbac_list_ta_number_t ta_number,

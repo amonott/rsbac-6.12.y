@@ -382,7 +382,6 @@ SYSCALL_DEFINE3(getdents, unsigned int, fd,
 #endif
 
 	error = iterate_dir(fd_file(f), &buf.ctx);
-
 	if (error >= 0)
 		error = buf.error;
 	if (buf.prev_reclen) {
@@ -476,7 +475,7 @@ SYSCALL_DEFINE3(getdents64, unsigned int, fd,
 		return -EBADF;
 
 #if defined(CONFIG_RSBAC_FSOBJ_HIDE) || defined(CONFIG_RSBAC_CAP_FD_HIDE)
-	buf.file = f.file;
+	buf.file = fd_file(f);
 #endif
 
 	error = iterate_dir(fd_file(f), &buf.ctx);

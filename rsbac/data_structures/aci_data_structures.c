@@ -5,7 +5,7 @@
 /* (some smaller parts copied from fs/namei.c        */
 /*  and others)                                      */
 /*                                                   */
-/* Last modified: 29/Jul/2024                        */
+/* Last modified: 13/Dec/2024                        */
 /*************************************************** */
 
 #include <linux/types.h>
@@ -42,6 +42,7 @@
 #include <linux/namei.h>
 #include <linux/spinlock.h>
 #include <linux/fdtable.h>
+#include <uapi/linux/wait.h>
 #include <uapi/linux/mount.h>
 #include <asm/uaccess.h>
 #include <asm/atomic.h>
@@ -56,6 +57,7 @@
 #include <rsbac/adf.h>
 #include <rsbac/adf_main.h>
 #include <rsbac/reg.h>
+#include <rsbac/um.h>
 #include <rsbac/rkmem.h>
 #include <rsbac/gen_lists.h>
 #include <rsbac/jail.h>
@@ -319,7 +321,7 @@ static inline u_int device_hash(__u32 minor)
 /* This help function protects some filesystems from being written to */
 /* and disables writing under some conditions, e.g. in an interrupt */
 
-rsbac_boolean_t rsbac_type_writable(struct super_block * sb_p)
+static rsbac_boolean_t rsbac_type_writable(struct super_block * sb_p)
 {
 #ifdef CONFIG_RSBAC_NO_WRITE
 	return FALSE;
@@ -371,7 +373,7 @@ rsbac_boolean_t rsbac_type_writable(struct super_block * sb_p)
 #endif
 }
 
-rsbac_boolean_t rsbac_device_type_writable(struct rsbac_device_list_item_t *device_p)
+static rsbac_boolean_t rsbac_device_type_writable(struct rsbac_device_list_item_t *device_p)
 {
 	if (!device_p || !device_p->vfsmount_p || !device_p->vfsmount_p->mnt_sb)
 		return FALSE;
@@ -422,7 +424,7 @@ static int rsbac_set_rsbac_dat_inode(__u32 major, __u32 minor, long dir_fd)
 	struct fd f;
 
 	f = fdget_pos(dir_fd);
-	if (!f.file) {
+	if (!fd_file(f)) {
 		rsbac_printk(KERN_WARNING "rsbac_set_rsbac_dat_inode(): fdget_pos() for dir_fd %lu failed\n",
 			     major, minor);
 		return -EBADF;
@@ -437,10 +439,10 @@ static int rsbac_set_rsbac_dat_inode(__u32 major, __u32 minor, long dir_fd)
 		srcu_read_unlock(&device_list_srcu[hash], srcu_idx);
 		return -RSBAC_EINVALIDDEV;
 	}
-	if (device_p->rsbac_dir_inode != f.file->f_inode->i_ino) {
+	if (device_p->rsbac_dir_inode != fd_file(f)->f_inode->i_ino) {
 		rsbac_pr_debug(ds, "rsbac_set_rsbac_dat_inode(): Set rsbac_dir_inode for device %02u:%02u to %llu\n",
-			     major, minor, f.file->f_inode->i_ino);
-		device_p->rsbac_dir_inode = f.file->f_inode->i_ino;
+			     major, minor, fd_file(f)->f_inode->i_ino);
+		device_p->rsbac_dir_inode = fd_file(f)->f_inode->i_ino;
 	}
 	srcu_read_unlock(&device_list_srcu[hash], srcu_idx);
 	fdput_pos(f);
@@ -2654,22 +2656,22 @@ ssize_t rsbac_read_file(unsigned int fd, char *buf, size_t count)
 	struct fd f = fdget_pos(fd);
 	ssize_t ret = -EBADF;
 
-	if (f.file) {
+	if (fd_file(f)) {
 		loff_t pos;
 		loff_t *ppos;
 
-		if (!(f.file->f_mode & FMODE_READ))
+		if (!(fd_file(f)->f_mode & FMODE_READ))
 			return -EBADF;
-		if (!(f.file->f_mode & FMODE_CAN_READ))
+		if (!(fd_file(f)->f_mode & FMODE_CAN_READ))
 			return -EINVAL;
-		ppos = &f.file->f_pos;
+		ppos = &fd_file(f)->f_pos;
 		if (ppos) {
 			pos = *ppos;
 			ppos = &pos;
 		}
-		ret = kernel_read(f.file, buf, count, ppos);
+		ret = kernel_read(fd_file(f), buf, count, ppos);
 		if (ret >= 0 && ppos)
-			f.file->f_pos = pos;
+			fd_file(f)->f_pos = pos;
 		fdput_pos(f);
 	}
 	return ret;
@@ -2684,22 +2686,22 @@ ssize_t rsbac_write_file(unsigned int fd, const char *buf, size_t count)
 	struct fd f = fdget_pos(fd);
 	ssize_t ret = -EBADF;
 
-	if (f.file) {
+	if (fd_file(f)) {
 		loff_t pos;
 		loff_t *ppos;
 
-		if (!(f.file->f_mode & FMODE_WRITE))
+		if (!(fd_file(f)->f_mode & FMODE_WRITE))
 			return -EBADF;
-		if (!(f.file->f_mode & FMODE_CAN_WRITE))
+		if (!(fd_file(f)->f_mode & FMODE_CAN_WRITE))
 			return -EINVAL;
-		ppos = &f.file->f_pos;
+		ppos = &fd_file(f)->f_pos;
 		if (ppos) {
 			pos = *ppos;
 			ppos = &pos;
 		}
-		ret = kernel_write(f.file, buf, count, ppos);
+		ret = kernel_write(fd_file(f), buf, count, ppos);
 		if (ret >= 0 && ppos)
-			f.file->f_pos = pos;
+			fd_file(f)->f_pos = pos;
 		fdput_pos(f);
 	}
 	return ret;
@@ -4524,15 +4526,6 @@ static int register_all_rsbac_proc(void)
 
 /* Since there can be no access to aci data structures before init,         */
 /* rsbac_do_init() will initialize all rw-spinlocks to unlocked.               */
-
-/* UDF init prototype */
-#if defined(CONFIG_RSBAC_UDF)
-#ifdef CONFIG_RSBAC_INIT_DELAY
-int rsbac_init_udf(void);
-#else
-int __init rsbac_init_udf(void);
-#endif
-#endif
 
 #if defined(CONFIG_RSBAC_AUTO_WRITE)
 static void walk_delayed_kfree(void)
@@ -13952,14 +13945,6 @@ int rsbac_ta_net_lookup_templates(rsbac_list_ta_number_t ta_number,
 	}
 	rsbac_kfree(rsbac_net_desc_p);
 	return 0;
-}
-
-void rsbac_net_obj_cleanup(rsbac_net_obj_id_t netobj)
-{
-	union rsbac_target_id_t tid;
-
-	tid.netobj.sock_p = netobj;
-	rsbac_remove_target(T_NETOBJ, &tid);
 }
 
 int rsbac_ta_net_template_exists(rsbac_list_ta_number_t ta_number,

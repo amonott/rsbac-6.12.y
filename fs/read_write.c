@@ -721,7 +721,7 @@ ssize_t vfs_write(struct file *file, const char __user *buf, size_t count, loff_
 	if (ret > 0) {
 
 #ifdef CONFIG_RSBAC_RW
-			rsbac_handle_rw_up(&rsbac_rw_req_obj);
+		rsbac_handle_rw_up(&rsbac_rw_req_obj);
 #endif
 
 		fsnotify_modify(file);
@@ -1420,8 +1420,8 @@ static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
 
 #ifdef CONFIG_RSBAC_RW
 /* i could have done it in few lines of code, but that's way it is MUCH faster and sendfile is mostly beeing used with network sockets */
-	if (S_ISSOCK(in.file->f_path.dentry->d_inode->i_mode)) {
-		sock1 = SOCKET_I(in.file->f_path.dentry->d_inode);
+	if (S_ISSOCK(fd_file(in)->f_path.dentry->d_inode->i_mode)) {
+		sock1 = SOCKET_I(fd_file(in)->f_path.dentry->d_inode);
 		if ((sock1->ops) && (sock1->ops->family != AF_UNIX)) {
 			rsbac_rw_req_obj1.rsbac_target = T_NETOBJ;
                         rsbac_rw_req_obj1.rsbac_target_id.netobj.sock_p = sock1;
@@ -1434,7 +1434,7 @@ static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
                 }
 	}
 	rsbac_rw_req_obj1.rsbac_request = R_READ;
-	if(!rsbac_handle_rw_req(in.file, &rsbac_rw_req_obj1))
+	if(!rsbac_handle_rw_req(fd_file(in), &rsbac_rw_req_obj1))
 	{
 		retval = -EPERM;
 		goto fput_in;
@@ -1455,8 +1455,8 @@ static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
 	out_pos = fd_file(out)->f_pos;
 
 #ifdef CONFIG_RSBAC_RW
-	if (S_ISSOCK(out.file->f_path.dentry->d_inode->i_mode)) {
-		sock2 = SOCKET_I(out.file->f_path.dentry->d_inode);
+	if (S_ISSOCK(fd_file(out)->f_path.dentry->d_inode->i_mode)) {
+		sock2 = SOCKET_I(fd_file(out)->f_path.dentry->d_inode);
 		if ((sock2->ops) && (sock2->ops->family != AF_UNIX)) {
                         rsbac_rw_req_obj2.rsbac_target = T_NETOBJ;
                         rsbac_rw_req_obj2.rsbac_target_id.netobj.sock_p = sock2;
@@ -1469,7 +1469,7 @@ static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
                 }
 	}
 	rsbac_rw_req_obj2.rsbac_request = R_WRITE;
-	if(!rsbac_handle_rw_req(out.file, &rsbac_rw_req_obj2))
+	if(!rsbac_handle_rw_req(fd_file(out), &rsbac_rw_req_obj2))
 	{
 		retval = -EPERM;
 		goto fput_out;

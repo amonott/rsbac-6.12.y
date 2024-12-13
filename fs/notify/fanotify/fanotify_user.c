@@ -1688,7 +1688,6 @@ static int do_fanotify_mark(int fanotify_fd, unsigned int flags, __u64 mask,
 	int ret;
 
 #ifdef CONFIG_RSBAC
-	enum  rsbac_target_t rsbac_target;
 	union rsbac_target_id_t rsbac_target_id;
 	union rsbac_attribute_value_t rsbac_attribute_value;
 #endif
@@ -1901,6 +1900,7 @@ static int do_fanotify_mark(int fanotify_fd, unsigned int flags, __u64 mask,
 	/* create/update an inode mark */
 	switch (mark_cmd) {
 	case FAN_MARK_ADD:
+
 #ifdef CONFIG_RSBAC
 		rsbac_pr_debug(aef, "calling ADF\n");
 		rsbac_target_id.dev.type = D_block;
@@ -1919,7 +1919,6 @@ static int do_fanotify_mark(int fanotify_fd, unsigned int flags, __u64 mask,
 
 		ret = fanotify_add_mark(group, obj, obj_type, mask, flags,
 					fsid);
-
 		break;
 	case FAN_MARK_REMOVE:
 		ret = fanotify_remove_mark(group, obj, obj_type, mask, flags,
