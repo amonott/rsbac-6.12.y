@@ -3,7 +3,7 @@
 /* Implementation of RSBAC general system calls      */
 /* Author and (C) 1999-2024: Amon Ott <ao@rsbac.org> */
 /*                                                   */
-/* Last modified: 29/Jul/2024                        */
+/* Last modified: 13/Dec/2024                        */
 /*************************************************** */
 
 #include <rsbac/types.h>
@@ -63,7 +63,7 @@ extern __u64 syscall_count[RSYS_none];
 /* All functions return 0, if no error occurred, and a negative error code  */
 /* otherwise. The error codes are defined in rsbac/error.h.                 */
 
-int sys_rsbac_stats(void)
+static int sys_rsbac_stats(void)
   {
     union rsbac_target_id_t       rsbac_target_id;
     union rsbac_attribute_value_t rsbac_attribute_value;
@@ -91,7 +91,7 @@ int sys_rsbac_stats(void)
 
 long sys_sync(void);
 
-int sys_rsbac_check(int correct, int check_inode)
+static int sys_rsbac_check(int correct, int check_inode)
   {
     union rsbac_target_id_t       rsbac_target_id;
     union rsbac_attribute_value_t rsbac_attribute_value;
@@ -134,7 +134,7 @@ int sys_rsbac_check(int correct, int check_inode)
     return result;
   }
 
-int sys_rsbac_write(void)
+static int sys_rsbac_write(void)
   {
 #if defined(CONFIG_RSBAC_AUTO_WRITE)
     union rsbac_target_id_t       rsbac_target_id;
@@ -168,7 +168,7 @@ int sys_rsbac_write(void)
 /*               Attribute functions               */
 /************************************************* */
 
-int sys_rsbac_get_attr(
+static int sys_rsbac_get_attr(
   rsbac_list_ta_number_t ta_number,
   enum rsbac_switch_target_t module,
   enum rsbac_target_t target,
@@ -294,7 +294,7 @@ int sys_rsbac_get_attr(
     }      /* end of sys_rsbac_get_attr() */
 
 
-int sys_rsbac_get_attr_n(
+static int sys_rsbac_get_attr_n(
   rsbac_list_ta_number_t ta_number,
   enum rsbac_switch_target_t module,
   enum rsbac_target_t target,
@@ -566,7 +566,7 @@ out:
 
 /************************************************************************** */
 
-int sys_rsbac_set_attr(
+static int sys_rsbac_set_attr(
   rsbac_list_ta_number_t ta_number,
   enum rsbac_switch_target_t module,
   enum rsbac_target_t target,
@@ -686,7 +686,7 @@ int sys_rsbac_set_attr(
       return err;
     }      /* end of sys_rsbac_set_attr() */
 
-int sys_rsbac_set_attr_n(
+static int sys_rsbac_set_attr_n(
   rsbac_list_ta_number_t ta_number,
   enum rsbac_switch_target_t module,
   enum rsbac_target_t target,
@@ -919,7 +919,7 @@ out:
 
 /************************************************************************** */
 
-int sys_rsbac_remove_target(
+static int sys_rsbac_remove_target(
   rsbac_list_ta_number_t ta_number,
   enum rsbac_target_t target,
   union rsbac_target_id_t __user * tid)
@@ -990,7 +990,7 @@ int sys_rsbac_remove_target(
       return err;
     }      /* end of sys_rsbac_remove_target() */
 
-int sys_rsbac_remove_target_n(
+static int sys_rsbac_remove_target_n(
   rsbac_list_ta_number_t ta_number,
   enum rsbac_target_t target,
   char __user * t_name)
@@ -1209,7 +1209,7 @@ out:
       return err;
     }      /* end of sys_rsbac_remove_target_n() */
 
-int sys_rsbac_list_all_dev(
+static int sys_rsbac_list_all_dev(
   rsbac_list_ta_number_t ta_number,
   struct rsbac_dev_desc_t __user * id_p,
   u_long maxnum)
@@ -1240,7 +1240,7 @@ int sys_rsbac_list_all_dev(
       return rsbac_ta_list_all_dev(ta_number, NULL);
   }
 
-int sys_rsbac_list_all_user(
+static int sys_rsbac_list_all_user(
   rsbac_list_ta_number_t ta_number,
   rsbac_uid_t __user * id_p,
   u_long maxnum)
@@ -1271,7 +1271,7 @@ int sys_rsbac_list_all_user(
       return rsbac_ta_list_all_user(ta_number, NULL);
   }
 
-int sys_rsbac_list_all_group(
+static int sys_rsbac_list_all_group(
   rsbac_list_ta_number_t ta_number,
   rsbac_gid_t __user * id_p,
   u_long maxnum)
@@ -1302,7 +1302,7 @@ int sys_rsbac_list_all_group(
       return rsbac_ta_list_all_group(ta_number, NULL);
   }
 
-int sys_rsbac_list_all_ipc(rsbac_list_ta_number_t ta_number,
+static int sys_rsbac_list_all_ipc(rsbac_list_ta_number_t ta_number,
 			   struct rsbac_ipc_t __user * id_p, u_long maxnum)
 {
 	int err = 0;
@@ -1330,7 +1330,7 @@ int sys_rsbac_list_all_ipc(rsbac_list_ta_number_t ta_number,
 		return rsbac_ta_list_all_ipc(ta_number, NULL);
 }
 
-int sys_rsbac_net_list_all_netdev(
+static int sys_rsbac_net_list_all_netdev(
   rsbac_list_ta_number_t ta_number,
   rsbac_netdev_id_t __user * id_p,
   u_long maxnum)
@@ -1366,7 +1366,7 @@ int sys_rsbac_net_list_all_netdev(
 #endif /* CONFIG_RSBAC_NET_DEV */
   }
 
-int sys_rsbac_net_template(rsbac_list_ta_number_t ta_number,
+static int sys_rsbac_net_template(rsbac_list_ta_number_t ta_number,
 			   enum rsbac_net_temp_syscall_t call,
 			   rsbac_net_temp_id_t id,
 			   union rsbac_net_temp_syscall_data_t __user * data_p)
@@ -1549,7 +1549,7 @@ int sys_rsbac_net_template(rsbac_list_ta_number_t ta_number,
 #endif				/* NET_OBJ */
 }
 
-int sys_rsbac_net_list_all_template(
+static int sys_rsbac_net_list_all_template(
   rsbac_list_ta_number_t ta_number,
   rsbac_net_temp_id_t __user * id_p,
   u_long maxnum)
@@ -1601,7 +1601,7 @@ int sys_rsbac_net_list_all_template(
 /*                 ADF functions                   */
 /************************************************* */
 
-int sys_rsbac_switch(enum rsbac_switch_target_t module, int value)
+static int sys_rsbac_switch(enum rsbac_switch_target_t module, int value)
   {
 #if defined(CONFIG_RSBAC_SWITCH) || defined(CONFIG_RSBAC_SOFTMODE)
     union rsbac_target_id_t       rsbac_target_id;
@@ -1815,7 +1815,7 @@ int sys_rsbac_switch(enum rsbac_switch_target_t module, int value)
  *
  * Returns 0 on success
  */
-int sys_rsbac_get_switch(enum rsbac_switch_target_t module,
+static int sys_rsbac_get_switch(enum rsbac_switch_target_t module,
 			int __user * value_p,
 			int __user * switchable_p)
 {
@@ -2014,7 +2014,7 @@ int sys_rsbac_get_switch(enum rsbac_switch_target_t module,
 /************** MAC ***************/
 
 #ifdef CONFIG_RSBAC_MAC
-int sys_rsbac_mac_set_curr_level(rsbac_security_level_t level,
+static int sys_rsbac_mac_set_curr_level(rsbac_security_level_t level,
                                  rsbac_mac_category_vector_t __user * categories_p)
   {
     rsbac_mac_category_vector_t k_categories;
@@ -2028,7 +2028,7 @@ int sys_rsbac_mac_set_curr_level(rsbac_security_level_t level,
     return rsbac_mac_set_curr_level(level, k_categories);
   }
 
-int sys_rsbac_mac_get_curr_level(rsbac_security_level_t __user * level_p,
+static int sys_rsbac_mac_get_curr_level(rsbac_security_level_t __user * level_p,
                                  rsbac_mac_category_vector_t __user * categories_p)
   {
     int err = 0;
@@ -2051,7 +2051,7 @@ int sys_rsbac_mac_get_curr_level(rsbac_security_level_t __user * level_p,
     return err;
   }
 
-int sys_rsbac_mac_get_max_level(rsbac_security_level_t __user * level_p,
+static int sys_rsbac_mac_get_max_level(rsbac_security_level_t __user * level_p,
                                 rsbac_mac_category_vector_t __user * categories_p)
   {
     int err = 0;
@@ -2074,7 +2074,7 @@ int sys_rsbac_mac_get_max_level(rsbac_security_level_t __user * level_p,
     return err;
   }
 
-int sys_rsbac_mac_get_min_level(rsbac_security_level_t __user * level_p,
+static int sys_rsbac_mac_get_min_level(rsbac_security_level_t __user * level_p,
                                 rsbac_mac_category_vector_t __user * categories_p)
   {
     int err = 0;
@@ -2098,7 +2098,7 @@ int sys_rsbac_mac_get_min_level(rsbac_security_level_t __user * level_p,
   }
 
 /* Provide means for adding and removing of capabilities */
-int sys_rsbac_mac_add_p_tru(
+static int sys_rsbac_mac_add_p_tru(
   rsbac_list_ta_number_t ta_number,
   rsbac_upid_t upid,
   rsbac_uid_t uid,
@@ -2132,7 +2132,7 @@ int sys_rsbac_mac_add_p_tru(
     return rsbac_mac_add_p_tru(ta_number, pid, uid, ttl);
   }
 
-int sys_rsbac_mac_remove_p_tru(
+static int sys_rsbac_mac_remove_p_tru(
   rsbac_list_ta_number_t ta_number,
   rsbac_upid_t upid,
   rsbac_uid_t uid)
@@ -2164,7 +2164,7 @@ int sys_rsbac_mac_remove_p_tru(
     return rsbac_mac_remove_p_tru(ta_number, pid, uid);
   }
 
-int sys_rsbac_mac_add_f_tru(
+static int sys_rsbac_mac_add_f_tru(
   rsbac_list_ta_number_t ta_number,
   char __user * filename,
   rsbac_uid_t uid,
@@ -2237,7 +2237,7 @@ out:
     return err;
   }
 
-int sys_rsbac_mac_remove_f_tru(
+static int sys_rsbac_mac_remove_f_tru(
   rsbac_list_ta_number_t ta_number,
   char __user * filename,
   rsbac_uid_t uid)
@@ -2309,7 +2309,7 @@ out:
   }
 
 /* trulist must have space for maxnum rsbac_uid_t entries! */
-int sys_rsbac_mac_get_f_trulist(
+static int sys_rsbac_mac_get_f_trulist(
   rsbac_list_ta_number_t ta_number,
   char __user * filename,
   rsbac_uid_t __user trulist[],
@@ -2392,7 +2392,7 @@ out:
     return err;
   }
 
-int sys_rsbac_mac_get_p_trulist(
+static int sys_rsbac_mac_get_p_trulist(
   rsbac_list_ta_number_t ta_number,
   rsbac_upid_t upid,
   rsbac_uid_t __user trulist[],
@@ -2447,7 +2447,7 @@ int sys_rsbac_mac_get_p_trulist(
 /************** RC ***************/
 
 #ifdef CONFIG_RSBAC_RC
-int sys_rsbac_rc_copy_role(
+static int sys_rsbac_rc_copy_role(
   rsbac_list_ta_number_t ta_number,
   rsbac_rc_role_id_t from_role,
   rsbac_rc_role_id_t to_role)
@@ -2474,7 +2474,7 @@ int sys_rsbac_rc_copy_role(
     return rsbac_rc_sys_copy_role(ta_number, from_role, to_role);
   }
 
-int sys_rsbac_rc_copy_type(
+static int sys_rsbac_rc_copy_type(
         rsbac_list_ta_number_t ta_number,
   enum  rsbac_target_t         target,
         rsbac_rc_type_id_t     from_type,
@@ -2503,7 +2503,7 @@ int sys_rsbac_rc_copy_type(
   }
 
 /* Getting values */
-int sys_rsbac_rc_get_item (
+static int sys_rsbac_rc_get_item (
         rsbac_list_ta_number_t  ta_number,
   enum  rsbac_rc_target_t       target,
   union rsbac_rc_target_id_t __user * tid_p,
@@ -2545,7 +2545,7 @@ int sys_rsbac_rc_get_item (
   }
 
 /* Setting values */
-int sys_rsbac_rc_set_item(
+static int sys_rsbac_rc_set_item(
   rsbac_list_ta_number_t        ta_number,
   enum  rsbac_rc_target_t       target,
   union rsbac_rc_target_id_t __user * tid_p,
@@ -2585,7 +2585,7 @@ int sys_rsbac_rc_set_item(
     return rsbac_rc_sys_set_item(ta_number, target, k_tid, k_subtid, item, k_value, ttl);
   }
 
-int sys_rsbac_rc_get_list(
+static int sys_rsbac_rc_get_list(
         rsbac_list_ta_number_t ta_number,
   enum  rsbac_rc_target_t      target,
   union rsbac_rc_target_id_t __user * tid_p,
@@ -2634,7 +2634,7 @@ int sys_rsbac_rc_get_list(
   }
 
 /* Set own role */
-int sys_rsbac_rc_change_role (rsbac_rc_role_id_t role, char __user * pass)
+static int sys_rsbac_rc_change_role (rsbac_rc_role_id_t role, char __user * pass)
   {
     if(role > RC_role_max_value)
       return -RSBAC_EINVALIDVALUE;
@@ -2649,7 +2649,7 @@ int sys_rsbac_rc_change_role (rsbac_rc_role_id_t role, char __user * pass)
   }
 
 /* Getting own effective rights */
-int sys_rsbac_rc_get_eff_rights_n(
+static int sys_rsbac_rc_get_eff_rights_n(
         rsbac_list_ta_number_t      ta_number,
   enum  rsbac_target_t              target,
         char                      __user * t_name,
@@ -2824,7 +2824,7 @@ int sys_rsbac_rc_get_eff_rights_n(
   }
 
 /* Get current process role */
-int sys_rsbac_rc_get_current_role (rsbac_rc_role_id_t __user * role_p)
+static int sys_rsbac_rc_get_current_role (rsbac_rc_role_id_t __user * role_p)
   {
     rsbac_rc_role_id_t k_role;
     int err;
@@ -2840,7 +2840,7 @@ int sys_rsbac_rc_get_current_role (rsbac_rc_role_id_t __user * role_p)
     return err;
   }
 
-int sys_rsbac_rc_select_fd_create_type(rsbac_rc_type_id_t type)
+static int sys_rsbac_rc_select_fd_create_type(rsbac_rc_type_id_t type)
 {
 	int err;
 
@@ -2854,7 +2854,7 @@ int sys_rsbac_rc_select_fd_create_type(rsbac_rc_type_id_t type)
 
 #ifdef CONFIG_RSBAC_AUTH
 /* Provide means for adding and removing of capabilities */
-int sys_rsbac_auth_add_p_cap(
+static int sys_rsbac_auth_add_p_cap(
          rsbac_list_ta_number_t ta_number,
          rsbac_upid_t upid,
   enum   rsbac_auth_cap_type_t cap_type,
@@ -2950,7 +2950,7 @@ int sys_rsbac_auth_add_p_cap(
     return rsbac_auth_add_p_cap(ta_number, tid.process, cap_type, cap_range, ttl);
   }
 
-int sys_rsbac_auth_remove_p_cap(
+static int sys_rsbac_auth_remove_p_cap(
          rsbac_list_ta_number_t ta_number,
          rsbac_upid_t upid,
   enum   rsbac_auth_cap_type_t cap_type,
@@ -3040,7 +3040,7 @@ int sys_rsbac_auth_remove_p_cap(
     return rsbac_auth_remove_p_cap(ta_number, tid.process, cap_type, cap_range);
   }
 
-int sys_rsbac_auth_add_f_cap(
+static int sys_rsbac_auth_add_f_cap(
          rsbac_list_ta_number_t   ta_number,
          char                  __user * filename,
   enum   rsbac_auth_cap_type_t    cap_type,
@@ -3149,7 +3149,7 @@ out:
     return err;
   }
 
-int sys_rsbac_auth_remove_f_cap(
+static int sys_rsbac_auth_remove_f_cap(
          rsbac_list_ta_number_t   ta_number,
          char                  __user * filename,
   enum   rsbac_auth_cap_type_t    cap_type,
@@ -3256,7 +3256,7 @@ out:
   }
 
 /* caplist must have space for maxnum auth_cap_range entries - first and last each! */
-int sys_rsbac_auth_get_f_caplist(
+static int sys_rsbac_auth_get_f_caplist(
          rsbac_list_ta_number_t   ta_number,
          char                  __user * filename,
   enum   rsbac_auth_cap_type_t    cap_type,
@@ -3363,7 +3363,7 @@ out:
     return err;
   }
 
-int sys_rsbac_auth_get_p_caplist(
+static int sys_rsbac_auth_get_p_caplist(
          rsbac_list_ta_number_t ta_number,
          rsbac_upid_t           upid,
   enum   rsbac_auth_cap_type_t  cap_type,
@@ -3442,7 +3442,7 @@ int sys_rsbac_auth_get_p_caplist(
 /************** RES ***************/
 
 #ifdef CONFIG_RSBAC_RES
-int sys_rsbac_res_get_user_limit(rsbac_list_ta_number_t ta_number,
+static int sys_rsbac_res_get_user_limit(rsbac_list_ta_number_t ta_number,
 				rsbac_uid_t uid,
 				enum rsbac_attribute_t attr,
 				rsbac_res_desc_t res_num,
@@ -3511,7 +3511,7 @@ int sys_rsbac_res_get_user_limit(rsbac_list_ta_number_t ta_number,
   return err;
 }
 
-int sys_rsbac_res_set_user_limit(rsbac_list_ta_number_t ta_number,
+static int sys_rsbac_res_set_user_limit(rsbac_list_ta_number_t ta_number,
 				rsbac_uid_t uid,
 				enum rsbac_attribute_t attr,
 				rsbac_res_desc_t res_num,
@@ -3571,7 +3571,7 @@ int sys_rsbac_res_set_user_limit(rsbac_list_ta_number_t ta_number,
   return rsbac_ta_set_res_limit(ta_number, T_USER, &k_tid, attr, res_num, value_p ? &k_value : NULL, ttl);
 }
 
-int sys_rsbac_res_get_file_limit(rsbac_list_ta_number_t ta_number,
+static int sys_rsbac_res_get_file_limit(rsbac_list_ta_number_t ta_number,
 				char __user * t_name,
 				enum rsbac_attribute_t attr,
 				rsbac_res_desc_t res_num,
@@ -3673,7 +3673,7 @@ out_dput:
   return err;
 }
 
-int sys_rsbac_res_set_file_limit(rsbac_list_ta_number_t ta_number,
+static int sys_rsbac_res_set_file_limit(rsbac_list_ta_number_t ta_number,
 				char __user * t_name,
 				enum rsbac_attribute_t attr,
 				rsbac_res_desc_t res_num,
@@ -3775,7 +3775,7 @@ out_dput:
 /************** REG ***************/
 
 #ifdef CONFIG_RSBAC_REG
-int sys_rsbac_reg(rsbac_reg_handle_t handle,
+static int sys_rsbac_reg(rsbac_reg_handle_t handle,
                              void __user * arg)
   {
     return rsbac_reg_syscall(handle, arg);
@@ -3786,7 +3786,7 @@ int sys_rsbac_reg(rsbac_reg_handle_t handle,
 /************** ACL ***************/
 
 #ifdef CONFIG_RSBAC_ACL
-int sys_rsbac_acl(
+static int sys_rsbac_acl(
          rsbac_list_ta_number_t     ta_number,
   enum   rsbac_acl_syscall_type_t   call,
   struct rsbac_acl_syscall_arg_t __user * arg)
@@ -3927,7 +3927,7 @@ int sys_rsbac_acl(
     }      /* end of sys_rsbac_acl() */
 
 
-int sys_rsbac_acl_n(
+static int sys_rsbac_acl_n(
          rsbac_list_ta_number_t      ta_number,
   enum   rsbac_acl_syscall_type_t    call,
   struct rsbac_acl_syscall_n_arg_t __user * arg)
@@ -4258,7 +4258,7 @@ out:
 
 /************************************************************************** */
 
-int sys_rsbac_acl_get_rights(
+static int sys_rsbac_acl_get_rights(
          rsbac_list_ta_number_t      ta_number,
   struct rsbac_acl_syscall_arg_t   __user * arg,
          rsbac_acl_rights_vector_t __user * rights_p,
@@ -4332,7 +4332,7 @@ int sys_rsbac_acl_get_rights(
     }      /* end of sys_rsbac_acl_get_rights() */
 
 
-int sys_rsbac_acl_get_rights_n(
+static int sys_rsbac_acl_get_rights_n(
          rsbac_list_ta_number_t      ta_number,
   struct rsbac_acl_syscall_n_arg_t __user * arg,
          rsbac_acl_rights_vector_t __user * rights_p,
@@ -4583,7 +4583,7 @@ out:
 
 /************************************************************************** */
 
-int sys_rsbac_acl_get_tlist (
+static int sys_rsbac_acl_get_tlist (
          rsbac_list_ta_number_t      ta_number,
   enum   rsbac_target_t              target,
   union  rsbac_target_id_t  __user * tid,
@@ -4650,7 +4650,7 @@ int sys_rsbac_acl_get_tlist (
       return err;
     }      /* end of sys_rsbac_acl_get_tlist() */
 
-int sys_rsbac_acl_get_tlist_n(
+static int sys_rsbac_acl_get_tlist_n(
          rsbac_list_ta_number_t   ta_number,
   enum   rsbac_target_t           target,
          char                     __user * t_name,
@@ -4869,7 +4869,7 @@ out:
 
 /************************************************************************** */
 
-int sys_rsbac_acl_get_mask (
+static int sys_rsbac_acl_get_mask (
          rsbac_list_ta_number_t      ta_number,
   enum   rsbac_target_t              target,
   union  rsbac_target_id_t         __user * tid,
@@ -4916,7 +4916,7 @@ int sys_rsbac_acl_get_mask (
       return err;
     }      /* end of sys_rsbac_acl_get_mask() */
 
-int sys_rsbac_acl_get_mask_n(
+static int sys_rsbac_acl_get_mask_n(
        rsbac_list_ta_number_t      ta_number,
   enum rsbac_target_t              target,
        char                        __user * t_name,
@@ -5119,7 +5119,7 @@ out:
 
 /********  ACL groups *********/
 
-int sys_rsbac_acl_group(
+static int sys_rsbac_acl_group(
         rsbac_list_ta_number_t           ta_number,
   enum  rsbac_acl_group_syscall_type_t   call,
   union rsbac_acl_group_syscall_arg_t __user * arg_p)
@@ -5161,7 +5161,7 @@ int sys_rsbac_acl_group(
       return err;
     }      /* end of sys_rsbac_acl() */
 
-int sys_rsbac_acl_list_all_dev(
+static int sys_rsbac_acl_list_all_dev(
   rsbac_list_ta_number_t ta_number,
   struct rsbac_dev_desc_t __user * id_p,
   u_long maxnum)
@@ -5221,7 +5221,7 @@ int sys_rsbac_acl_list_all_dev(
       }
   }
 
-int sys_rsbac_acl_list_all_user(
+static int sys_rsbac_acl_list_all_user(
   rsbac_list_ta_number_t ta_number,
   rsbac_uid_t __user * id_p,
   u_long maxnum)
@@ -5254,7 +5254,7 @@ int sys_rsbac_acl_list_all_user(
       }
   }
 
-int sys_rsbac_acl_list_all_group(
+static int sys_rsbac_acl_list_all_group(
   rsbac_list_ta_number_t ta_number,
   rsbac_gid_t __user * id_p,
   u_long maxnum)
@@ -5292,26 +5292,10 @@ int sys_rsbac_acl_list_all_group(
   }
 #endif
 
-/********  JAIL *********/
-
-#ifdef CONFIG_RSBAC_JAIL
-int sys_rsbac_jail(rsbac_version_t version,
-                   char __user * path,
-                   rsbac_jail_ip_t ip,
-                   rsbac_jail_flags_t flags,
-                   rsbac_cap_vector_t max_caps,
-                   rsbac_jail_scd_vector_t scd_get,
-                   rsbac_jail_scd_vector_t scd_modify)
-    { 
-      return rsbac_jail_sys_jail(version, path, ip, flags,
-                                 max_caps, scd_get, scd_modify);
-    }
-#endif
-
 /********  UM *********/
 
 #ifdef CONFIG_RSBAC_UM
-int sys_rsbac_um_auth_name(
+static int sys_rsbac_um_auth_name(
   char __user * name,
   char __user * pass)
     { 
@@ -5448,7 +5432,7 @@ out_free:
       return err;
     }
 
-int sys_rsbac_um_auth_uid(rsbac_uid_t uid,
+static int sys_rsbac_um_auth_uid(rsbac_uid_t uid,
                           char __user * pass)
     { 
       int err;
@@ -5570,7 +5554,7 @@ out_free:
       return err;
     }
 
-int sys_rsbac_um_add_user_hash(
+static int sys_rsbac_um_add_user_hash(
   rsbac_list_ta_number_t ta_number,
   rsbac_uid_t uid,
   struct rsbac_um_user_entry_t __user * entry_p,
@@ -5719,7 +5703,7 @@ out_free:
       return err;
     }
 
-int sys_rsbac_um_add_user(
+static int sys_rsbac_um_add_user(
   rsbac_list_ta_number_t ta_number,
   rsbac_uid_t uid,
   struct rsbac_um_user_entry_t __user * entry_p,
@@ -5729,7 +5713,7 @@ int sys_rsbac_um_add_user(
       return sys_rsbac_um_add_user_hash(ta_number, uid, entry_p, pass, NULL, ttl);
     }
 
-int sys_rsbac_um_add_group_hash(
+static int sys_rsbac_um_add_group_hash(
   rsbac_list_ta_number_t ta_number,
   rsbac_gid_t gid,
   struct rsbac_um_group_entry_t __user * entry_p,
@@ -5868,7 +5852,7 @@ out_free:
       return err;
     }
 
-int sys_rsbac_um_add_group(
+static int sys_rsbac_um_add_group(
   rsbac_list_ta_number_t ta_number,
   rsbac_gid_t gid,
   struct rsbac_um_group_entry_t __user * entry_p,
@@ -5878,7 +5862,7 @@ int sys_rsbac_um_add_group(
       return sys_rsbac_um_add_group_hash(ta_number, gid, entry_p, pass, NULL, ttl); 
     }
 
-int sys_rsbac_um_add_gm(
+static int sys_rsbac_um_add_gm(
   rsbac_list_ta_number_t ta_number,
   rsbac_uid_t user,
   rsbac_gid_num_t group,
@@ -5927,7 +5911,7 @@ int sys_rsbac_um_add_gm(
     return rsbac_um_add_gm(ta_number, user, group, ttl);
   }
 
-int sys_rsbac_um_mod_user(
+static int sys_rsbac_um_mod_user(
   rsbac_list_ta_number_t ta_number,
   rsbac_uid_t uid,
   enum rsbac_um_mod_t mod,
@@ -6081,7 +6065,7 @@ int sys_rsbac_um_mod_user(
       return err;
     }
 
-int sys_rsbac_um_mod_group(
+static int sys_rsbac_um_mod_group(
   rsbac_list_ta_number_t ta_number,
   rsbac_gid_t gid,
   enum rsbac_um_mod_t mod,
@@ -6186,7 +6170,7 @@ int sys_rsbac_um_mod_group(
       return err;
     }
 
-int sys_rsbac_um_get_user_item(
+static int sys_rsbac_um_get_user_item(
   rsbac_list_ta_number_t ta_number,
   rsbac_uid_t uid,
   enum rsbac_um_mod_t mod,
@@ -6281,7 +6265,7 @@ int sys_rsbac_um_get_user_item(
       return err;
     }
 
-int sys_rsbac_um_get_group_item(
+static int sys_rsbac_um_get_group_item(
   rsbac_list_ta_number_t ta_number,
   rsbac_gid_t gid,
   enum rsbac_um_mod_t mod,
@@ -6371,7 +6355,7 @@ int sys_rsbac_um_get_group_item(
       return err;
     }
 
-int sys_rsbac_um_remove_user(
+static int sys_rsbac_um_remove_user(
   rsbac_list_ta_number_t ta_number,
   rsbac_uid_t uid)
   { 
@@ -6439,7 +6423,7 @@ int sys_rsbac_um_remove_user(
     return err;
   }
 
-int sys_rsbac_um_remove_group(
+static int sys_rsbac_um_remove_group(
   rsbac_list_ta_number_t ta_number,
   rsbac_gid_t gid)
   { 
@@ -6507,7 +6491,7 @@ int sys_rsbac_um_remove_group(
     return err;
   }
 
-int sys_rsbac_um_remove_gm(
+static int sys_rsbac_um_remove_gm(
   rsbac_list_ta_number_t ta_number,
   rsbac_uid_t user,
   rsbac_gid_num_t group)
@@ -6555,7 +6539,7 @@ int sys_rsbac_um_remove_gm(
     return rsbac_um_remove_gm(ta_number, user, group);
   }
 
-int sys_rsbac_um_user_exists(
+static int sys_rsbac_um_user_exists(
   rsbac_list_ta_number_t ta_number,
   rsbac_uid_t uid)
     { 
@@ -6593,7 +6577,7 @@ int sys_rsbac_um_user_exists(
       return rsbac_um_user_exists(ta_number, uid);
     }
 
-int sys_rsbac_um_group_exists(
+static int sys_rsbac_um_group_exists(
   rsbac_list_ta_number_t ta_number,
   rsbac_gid_t gid)
     { 
@@ -6631,7 +6615,7 @@ int sys_rsbac_um_group_exists(
       return rsbac_um_group_exists(ta_number, gid);
     }
 
-int sys_rsbac_um_get_next_user(
+static int sys_rsbac_um_get_next_user(
   rsbac_list_ta_number_t ta_number,
   rsbac_uid_t old_user,
   rsbac_uid_t __user * next_user_p)
@@ -6680,7 +6664,7 @@ int sys_rsbac_um_get_next_user(
       return err;
     }
 
-int sys_rsbac_um_get_user_list(
+static int sys_rsbac_um_get_user_list(
   rsbac_list_ta_number_t ta_number,
   rsbac_um_set_t vset,
   rsbac_uid_t __user user_array[],
@@ -6740,7 +6724,7 @@ int sys_rsbac_um_get_user_list(
       return count;
   } /* end of sys_rsbac_um_get_user_list() */
 
-int sys_rsbac_um_get_gm_list(
+static int sys_rsbac_um_get_gm_list(
   rsbac_list_ta_number_t ta_number,
   rsbac_uid_t user,
   rsbac_gid_num_t __user group_array[],
@@ -6799,7 +6783,7 @@ int sys_rsbac_um_get_gm_list(
       return count;
   } /* end of sys_rsbac_um_get_gm_list() */
 
-int sys_rsbac_um_get_gm_user_list(
+static int sys_rsbac_um_get_gm_user_list(
   rsbac_list_ta_number_t ta_number,
   rsbac_gid_t group,
   rsbac_uid_num_t __user user_array[],
@@ -6858,7 +6842,7 @@ int sys_rsbac_um_get_gm_user_list(
     return count;
     } /* end of sys_rsbac_um_get_gm_user_list() */
 
-int sys_rsbac_um_get_group_list(
+static int sys_rsbac_um_get_group_list(
   rsbac_list_ta_number_t ta_number,
   rsbac_um_set_t vset,
   rsbac_gid_t __user group_array[],
@@ -6918,7 +6902,7 @@ int sys_rsbac_um_get_group_list(
       return count;
     } /* end of sys_rsbac_um_get_group_list() */
 
-int sys_rsbac_um_get_uid(
+static int sys_rsbac_um_get_uid(
   rsbac_list_ta_number_t ta_number,
   char __user * name,
   rsbac_uid_t __user * uid_p)
@@ -6972,7 +6956,7 @@ int sys_rsbac_um_get_uid(
       return err;
     }
 
-int sys_rsbac_um_get_gid(
+static int sys_rsbac_um_get_gid(
   rsbac_list_ta_number_t ta_number,
   char __user * name,
   rsbac_gid_t __user * gid_p)
@@ -7025,7 +7009,7 @@ int sys_rsbac_um_get_gid(
       return err;
     }
 
-int sys_rsbac_um_set_pass_hash(rsbac_uid_t uid,
+static int sys_rsbac_um_set_pass_hash(rsbac_uid_t uid,
                           char __user * old_pass,
                           char __user * new_pass,
                           const char __user * hash_algo)
@@ -7180,14 +7164,14 @@ int sys_rsbac_um_set_pass_hash(rsbac_uid_t uid,
       return err;
     }
 
-int sys_rsbac_um_set_pass(rsbac_uid_t uid,
+static int sys_rsbac_um_set_pass(rsbac_uid_t uid,
                           char __user * old_pass,
                           char __user * new_pass)
     {
       return sys_rsbac_um_set_pass_hash(uid, old_pass, new_pass, NULL); 
     }
 
-int sys_rsbac_um_set_pass_name_hash(char __user * name,
+static int sys_rsbac_um_set_pass_name_hash(char __user * name,
                                char __user * old_pass,
                                char __user * new_pass,
                                const char __user * hash_algo)
@@ -7234,14 +7218,14 @@ int sys_rsbac_um_set_pass_name_hash(char __user * name,
       return err;
     }
 
-int sys_rsbac_um_set_pass_name(char __user * name,
+static int sys_rsbac_um_set_pass_name(char __user * name,
                                char __user * old_pass,
                                char __user * new_pass)
     {
       return sys_rsbac_um_set_pass_name_hash(name, old_pass, new_pass, NULL);
     }
 
-int sys_rsbac_um_add_onetime_hash(rsbac_uid_t uid,
+static int sys_rsbac_um_add_onetime_hash(rsbac_uid_t uid,
                           char __user * old_pass,
                           char __user * new_pass,
                           char __user * hash_algo,
@@ -7396,7 +7380,7 @@ int sys_rsbac_um_add_onetime_hash(rsbac_uid_t uid,
 #endif    
     }
 
-int sys_rsbac_um_add_onetime(rsbac_uid_t uid,
+static int sys_rsbac_um_add_onetime(rsbac_uid_t uid,
                           char __user * old_pass,
                           char __user * new_pass,
                           rsbac_time_t ttl)
@@ -7404,7 +7388,7 @@ int sys_rsbac_um_add_onetime(rsbac_uid_t uid,
       return sys_rsbac_um_add_onetime_hash(uid, old_pass, new_pass, NULL, ttl); 
     }
 
-int sys_rsbac_um_add_onetime_name_hash(char __user * name,
+static int sys_rsbac_um_add_onetime_name_hash(char __user * name,
                                char __user * old_pass,
                                char __user * new_pass,
                                char __user * hash_algo,
@@ -7456,7 +7440,7 @@ int sys_rsbac_um_add_onetime_name_hash(char __user * name,
 #endif    
     }
 
-int sys_rsbac_um_add_onetime_name(char __user * name,
+static int sys_rsbac_um_add_onetime_name(char __user * name,
                                char __user * old_pass,
                                char __user * new_pass,
                                rsbac_time_t ttl)
@@ -7464,7 +7448,7 @@ int sys_rsbac_um_add_onetime_name(char __user * name,
       return sys_rsbac_um_add_onetime_name_hash(name, old_pass, new_pass, NULL, ttl);
     }
 
-int sys_rsbac_um_remove_all_onetime(rsbac_uid_t uid,
+static int sys_rsbac_um_remove_all_onetime(rsbac_uid_t uid,
                           char __user * old_pass)
     { 
 #if defined(CONFIG_RSBAC_UM_ONETIME)
@@ -7554,7 +7538,7 @@ int sys_rsbac_um_remove_all_onetime(rsbac_uid_t uid,
 #endif    
     }
 
-int sys_rsbac_um_remove_all_onetime_name(char __user * name,
+static int sys_rsbac_um_remove_all_onetime_name(char __user * name,
                                char __user * old_pass)
     {
 #if defined(CONFIG_RSBAC_UM_ONETIME)
@@ -7603,7 +7587,7 @@ int sys_rsbac_um_remove_all_onetime_name(char __user * name,
 #endif    
     }
 
-int sys_rsbac_um_count_onetime(rsbac_uid_t uid,
+static int sys_rsbac_um_count_onetime(rsbac_uid_t uid,
                           char __user * old_pass)
     { 
 #if defined(CONFIG_RSBAC_UM_ONETIME)
@@ -7692,7 +7676,7 @@ int sys_rsbac_um_count_onetime(rsbac_uid_t uid,
 #endif    
     }
 
-int sys_rsbac_um_count_onetime_name(char __user * name,
+static int sys_rsbac_um_count_onetime_name(char __user * name,
                                char __user * old_pass)
     {
 #if defined(CONFIG_RSBAC_UM_ONETIME)
@@ -7741,7 +7725,7 @@ int sys_rsbac_um_count_onetime_name(char __user * name,
 #endif    
     }
 
-int sys_rsbac_um_set_group_pass_hash(rsbac_gid_t gid,
+static int sys_rsbac_um_set_group_pass_hash(rsbac_gid_t gid,
                                 char __user * new_pass,
                                 const char __user * hash_algo)
     { 
@@ -7828,13 +7812,13 @@ int sys_rsbac_um_set_group_pass_hash(rsbac_gid_t gid,
       return err;
     }
 
-int sys_rsbac_um_set_group_pass(rsbac_gid_t gid,
+static int sys_rsbac_um_set_group_pass(rsbac_gid_t gid,
                                 char __user * new_pass)
     {
       return sys_rsbac_um_set_group_pass_hash(gid, new_pass, NULL); 
     }
 
-int sys_rsbac_um_check_account(rsbac_uid_t uid)
+static int sys_rsbac_um_check_account(rsbac_uid_t uid)
     { 
       int err;
       union rsbac_target_id_t       rsbac_target_id;
@@ -7874,7 +7858,7 @@ int sys_rsbac_um_check_account(rsbac_uid_t uid)
       return err;
     }
 
-int sys_rsbac_um_check_account_name(char __user * name)
+static int sys_rsbac_um_check_account_name(char __user * name)
     { 
       int err;
       rsbac_uid_t uid = RSBAC_GEN_UID(RSBAC_UM_VIRTUAL_KEEP, RSBAC_NO_USER);
@@ -7934,7 +7918,7 @@ int sys_rsbac_um_check_account_name(char __user * name)
       return err;
     }
 
-int sys_rsbac_um_get_max_history(rsbac_list_ta_number_t ta_number, rsbac_uid_t uid)
+static int sys_rsbac_um_get_max_history(rsbac_list_ta_number_t ta_number, rsbac_uid_t uid)
     {
 #ifdef CONFIG_RSBAC_UM_PWHISTORY
       int err;
@@ -7978,7 +7962,7 @@ int sys_rsbac_um_get_max_history(rsbac_list_ta_number_t ta_number, rsbac_uid_t u
 #endif
     }
 
-int sys_rsbac_um_get_max_history_name(rsbac_list_ta_number_t ta_number, char __user * name)
+static int sys_rsbac_um_get_max_history_name(rsbac_list_ta_number_t ta_number, char __user * name)
     {
 #ifdef CONFIG_RSBAC_UM_PWHISTORY
       int err;
@@ -8042,7 +8026,7 @@ int sys_rsbac_um_get_max_history_name(rsbac_list_ta_number_t ta_number, char __u
 #endif
     }
 
-int sys_rsbac_um_set_max_history(rsbac_list_ta_number_t ta_number, rsbac_uid_t uid, __u8 max_history)
+static int sys_rsbac_um_set_max_history(rsbac_list_ta_number_t ta_number, rsbac_uid_t uid, __u8 max_history)
     {
 #ifdef CONFIG_RSBAC_UM_PWHISTORY
       union rsbac_target_id_t       rsbac_target_id;
@@ -8082,7 +8066,7 @@ int sys_rsbac_um_set_max_history(rsbac_list_ta_number_t ta_number, rsbac_uid_t u
 #endif
     }
 
-int sys_rsbac_um_set_max_history_name(rsbac_list_ta_number_t ta_number, char __user * name, __u8 max_history)
+static int sys_rsbac_um_set_max_history_name(rsbac_list_ta_number_t ta_number, char __user * name, __u8 max_history)
     {
 #ifdef CONFIG_RSBAC_UM_PWHISTORY
       int err;
@@ -8143,7 +8127,7 @@ int sys_rsbac_um_set_max_history_name(rsbac_list_ta_number_t ta_number, char __u
 #endif
     }
 
-int sys_rsbac_um_select_vset(rsbac_um_set_t vset)
+static int sys_rsbac_um_select_vset(rsbac_um_set_t vset)
     { 
 #if defined(CONFIG_RSBAC_UM_VIRTUAL)
       union rsbac_target_id_t       rsbac_target_id;
@@ -8209,7 +8193,7 @@ int sys_rsbac_um_select_vset(rsbac_um_set_t vset)
 /************** UDF ***************/
 
 #ifdef CONFIG_RSBAC_UDF
-int sys_rsbac_udf_flush_cache(void)
+static int sys_rsbac_udf_flush_cache(void)
   {
 #ifndef CONFIG_RSBAC_UDF_CACHE
     return 0;
@@ -8256,7 +8240,7 @@ int sys_rsbac_udf_flush_cache(void)
 /*             DEBUG/LOG functions                 */
 /************************************************* */
 
-int sys_rsbac_adf_log_switch(enum rsbac_adf_request_t request,
+static int sys_rsbac_adf_log_switch(enum rsbac_adf_request_t request,
                              enum rsbac_target_t      target,
                              u_int                    value)
   {
@@ -8314,7 +8298,7 @@ int sys_rsbac_adf_log_switch(enum rsbac_adf_request_t request,
     return 0;
   }
 
-int sys_rsbac_get_adf_log(enum rsbac_adf_request_t   request,
+static int sys_rsbac_get_adf_log(enum rsbac_adf_request_t   request,
                           enum rsbac_target_t        target,
                           u_int             __user * value_p)
   {
@@ -8380,7 +8364,7 @@ int sys_rsbac_get_adf_log(enum rsbac_adf_request_t   request,
  * 	4 -- Read and clear last 4k of messages in the ring buffer
  * 	5 -- Clear ring buffer.
  */
-int sys_rsbac_log(int type,
+static int sys_rsbac_log(int type,
                   char __user * buf,
                   int len)
   {
@@ -8392,7 +8376,7 @@ int sys_rsbac_log(int type,
   }
 
 #if defined(CONFIG_RSBAC_INIT_DELAY)
-int sys_rsbac_init(char __user * path)
+static int sys_rsbac_init(char __user * path)
   {
     struct dentry * t_dentry = NULL;
     rsbac_boolean_t need_put = FALSE;
@@ -8431,7 +8415,7 @@ out:
 #endif
 
 #ifdef CONFIG_RSBAC_LIST_TRANS
-int sys_rsbac_list_ta_begin_name(
+static int sys_rsbac_list_ta_begin_name(
   rsbac_time_t ttl,
   rsbac_list_ta_number_t __user * ta_number_p,
   rsbac_uid_t commit_uid,
@@ -8490,7 +8474,7 @@ int sys_rsbac_list_ta_begin_name(
     return err;
   }
 
-int sys_rsbac_list_ta_begin(
+static int sys_rsbac_list_ta_begin(
   rsbac_time_t ttl,
   rsbac_list_ta_number_t __user * ta_number_p,
   rsbac_uid_t commit_uid,
@@ -8499,7 +8483,7 @@ int sys_rsbac_list_ta_begin(
     return sys_rsbac_list_ta_begin_name(ttl, ta_number_p, commit_uid, NULL, password);
   }
 
-int sys_rsbac_list_ta_refresh(
+static int sys_rsbac_list_ta_refresh(
   rsbac_time_t ttl,
   rsbac_list_ta_number_t ta_number,
   char __user * password)
@@ -8528,7 +8512,7 @@ int sys_rsbac_list_ta_refresh(
     return err;
   }
 
-int sys_rsbac_list_ta_commit(
+static int sys_rsbac_list_ta_commit(
   rsbac_list_ta_number_t ta_number,
   char __user * password)
   {
@@ -8556,7 +8540,7 @@ int sys_rsbac_list_ta_commit(
     return err;
   }
 
-int sys_rsbac_list_ta_forget(
+static int sys_rsbac_list_ta_forget(
   rsbac_list_ta_number_t ta_number,
   char __user * password)
   {

@@ -4,9 +4,9 @@
 /* Facility (ADF) - JAIL module                      */
 /* File: rsbac/adf/jail/syscalls.c                   */
 /*                                                   */
-/* Author and (c) 1999-2023: Amon Ott <ao@rsbac.org> */
+/* Author and (c) 1999-2024: Amon Ott <ao@rsbac.org> */
 /*                                                   */
-/* Last modified: 14/Dec/2023                        */
+/* Last modified: 13/Dec/2024                        */
 /*************************************************** */
 
 #include <linux/string.h>
@@ -20,6 +20,7 @@
 #include <linux/fs_struct.h>
 #include <rsbac/types.h>
 #include <rsbac/aci.h>
+#include <rsbac/adf_syshelpers.h>
 #include <rsbac/error.h>
 #include <rsbac/rkmem.h>
 #include <rsbac/debug.h>
