@@ -93,8 +93,6 @@
 #include "smp.h"
 #include "stats.h"
 
-#include <rsbac/hooks.h>
-
 #include "../workqueue_internal.h"
 #include "../../io_uring/io-wq.h"
 #include "../smpboot.h"
@@ -7612,33 +7610,6 @@ void __sched io_schedule(void)
 }
 EXPORT_SYMBOL(io_schedule);
 
-#ifdef CONFIG_RSBAC
-	enum rsbac_target_t rsbac_target;
-        union rsbac_target_id_t rsbac_target_id;
-        union rsbac_attribute_value_t rsbac_attribute_value;
-#endif
-
-
-#ifdef CONFIG_RSBAC
-	rsbac_pr_debug(aef, "[sys_sched_rr_get_interval]: calling ADF\n");
-	if (!pid || (pid == current->pid)) {
-		rsbac_target = T_SCD;
-		rsbac_target_id.scd = ST_priority;
-	} else {
-		rsbac_target = T_PROCESS;
-		rsbac_target_id.process = task_pid(p);
-	}
-	rsbac_attribute_value.dummy = 0;
-	if (!rsbac_adf_request(R_GET_STATUS_DATA,
-				task_pid(current),
-				rsbac_target,
-				rsbac_target_id,
-				A_none,
-				rsbac_attribute_value)) {
-		retval = -EPERM;
-		goto out_unlock;
-	}
-#endif
 void sched_show_task(struct task_struct *p)
 {
 	unsigned long free;
