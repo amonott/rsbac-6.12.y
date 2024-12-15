@@ -5225,7 +5225,7 @@ static int read_lol_list(struct rsbac_list_lol_reg_item_t *list)
 #ifndef CONFIG_RSBAC_NO_WRITE
 static int check_buffer(struct rsbac_list_buffer_t ** buffer_pp, u_int size)
 {
-	if((*buffer_pp)->len + size <= RSBAC_LIST_BUFFER_DATA_SIZE)
+	if((*buffer_pp)->len + size <= RSBAC_LIST_BUFFER_SIZE)
 		return 0;
 	else {
 		struct rsbac_list_buffer_t * new_buffer;
