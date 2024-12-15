@@ -1864,9 +1864,9 @@ int __sys_socket(int family, int type, int protocol)
 {
 	struct socket *sock;
 	int flags;
+	int retval;
 
 #ifdef CONFIG_RSBAC
-	int retval;
 	enum  rsbac_target_t rsbac_target = T_NONE;
 	union  rsbac_target_id_t rsbac_target_id;
 	union  rsbac_target_id_t rsbac_new_target_id;
