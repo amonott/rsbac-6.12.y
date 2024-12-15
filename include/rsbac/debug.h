@@ -3,7 +3,7 @@
 /* Author and (c) 1999-2024:     */
 /*   Amon Ott <ao@rsbac.org>     */
 /* debug definitions             */
-/* Last modified: 26/Jul/2024    */
+/* Last modified: 15/Dec/2024    */
 /******************************* */
 
 #ifndef __RSBAC_DEBUG_H
@@ -164,7 +164,7 @@ extern int rsbac_log(int, char *, int);
 struct rsbac_log_list_item_t {
 	struct rsbac_log_list_item_t *next;
 	u16 size;
-	char buffer[0];
+	char * buffer;
 };
 
 struct rsbac_log_list_head_t {

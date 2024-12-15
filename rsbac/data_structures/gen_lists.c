@@ -5230,9 +5230,14 @@ static int check_buffer(struct rsbac_list_buffer_t ** buffer_pp, u_int size)
 	else {
 		struct rsbac_list_buffer_t * new_buffer;
 
-		new_buffer = rsbac_kmalloc(RSBAC_LIST_BUFFER_SIZE);
+		new_buffer = rsbac_kmalloc(sizeof(*new_buffer));
 		if(!new_buffer)
 			return -RSBAC_ENOMEM;
+		new_buffer->data = rsbac_kmalloc(RSBAC_LIST_BUFFER_SIZE);
+		if(!new_buffer->data) {
+			kfree(new_buffer);
+			return -RSBAC_ENOMEM;
+		}
 		rsbac_pr_debug(write, "Added a buffer\n");
 		new_buffer->next = NULL;
 		new_buffer->len = 0;
@@ -5250,6 +5255,7 @@ static void free_buffers(struct rsbac_list_buffer_t * buffer)
 		rsbac_pr_debug(write, "Freeing buffer of size %u\n",
 				buffer->len);
 		next = buffer->next;
+		rsbac_kfree(buffer->data);
 		rsbac_kfree(buffer);
 		buffer = next;
 	}
@@ -5284,8 +5290,15 @@ static int fill_buffer(struct rsbac_list_reg_item_t *list,
 	write_item_p->major = list->major;
 	write_item_p->minor = list->minor;
 
-	buffer = rsbac_kmalloc(RSBAC_LIST_BUFFER_SIZE);
+	buffer = rsbac_kmalloc(sizeof(*buffer));
 	if (unlikely(!buffer)) {
+		rsbac_kfree(write_item_p);
+		*write_item_pp = NULL;
+		return -RSBAC_ENOMEM;
+	}
+	buffer->data = rsbac_kmalloc(RSBAC_LIST_BUFFER_SIZE);
+	if (unlikely(!buffer->data)) {
+		rsbac_kfree(buffer);
 		rsbac_kfree(write_item_p);
 		*write_item_pp = NULL;
 		return -RSBAC_ENOMEM;
@@ -5468,8 +5481,15 @@ static int fill_lol_buffer(struct rsbac_list_lol_reg_item_t *list,
 	write_item_p->major = list->major;
 	write_item_p->minor = list->minor;
 
-	buffer = rsbac_kmalloc(RSBAC_LIST_BUFFER_SIZE);
+	buffer = rsbac_kmalloc(sizeof(*buffer));
 	if (unlikely(!buffer)) {
+		rsbac_kfree(write_item_p);
+		*write_item_pp = NULL;
+		return -RSBAC_ENOMEM;
+	}
+	buffer->data = rsbac_kmalloc(RSBAC_LIST_BUFFER_SIZE);
+	if (unlikely(!buffer->data)) {
+		rsbac_kfree(buffer);
 		rsbac_kfree(write_item_p);
 		*write_item_pp = NULL;
 		return -RSBAC_ENOMEM;
