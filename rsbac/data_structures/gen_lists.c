@@ -3,7 +3,7 @@
 /* Author and (c) 1999-2024:           */
 /*   Amon Ott <ao@rsbac.org>           */
 /* Generic lists for all parts         */
-/* Last modified: 24/Jun/2024          */
+/* Last modified: 15/Dec/2024          */
 /************************************* */
 
 #include <linux/sched.h>
@@ -86,7 +86,9 @@ static __u64 rcu_free_lol_alloc_failed = 0;
 static __u64 rcu_free_lol_sub_alloc_failed = 0;
 static __u64 rcu_rate_reached_count = 0;
 
+#ifndef CONFIG_TINY_RCU
 unsigned long rcu_exp_batches_completed(void);
+#endif
 #endif
 
 /* Limit RCU callback calls to RCURATE per second, switch to sync when exceeded */
@@ -6042,7 +6044,9 @@ lists_counts_proc_show(struct seq_file *m, void *v)
 	seq_printf(m, "max_rcu_callback_count:     %u\n", max_rcu_callback_count);
 	seq_printf(m, "rcu_rate:                   %u/s\n", rsbac_list_rcu_rate);
 	seq_printf(m, "rcu_rate_reached_count:     %llu\n", rcu_rate_reached_count);
+#ifndef CONFIG_TINY_RCU
 	seq_printf(m, "system RCU total completed: %lu\n", rcu_exp_batches_completed());
+#endif
 #else
 	seq_printf(m, "\n %u lists of lists registered.\n",
 		       lol_reg_head.count);
