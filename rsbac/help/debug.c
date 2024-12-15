@@ -6,7 +6,7 @@
 /*                                           */
 /* Debug and logging functions for all parts */
 /*                                           */
-/* Last modified: 20/Sep/2024                */
+/* Last modified: 15/Dec/2024                */
 /******************************************* */
  
 #include <linux/uaccess.h>
@@ -1284,6 +1284,7 @@ int rsbac_log(int type, char * buf, int len)
 			memcpy(k_buf + count, log_item->buffer, log_item->size);
 			count += log_item->size;
 			log_item = log_item->next;
+			kfree(log_list_head.head->buffer);
 			kfree(log_list_head.head);
 			log_list_head.head = log_item;
 			if(!log_item)
@@ -1316,6 +1317,7 @@ int rsbac_log(int type, char * buf, int len)
 			memcpy(k_buf + count, log_item->buffer, log_item->size);
 			count += log_item->size;
 			log_item = log_item->next;
+			kfree(log_list_head.head->buffer);
 			kfree(log_list_head.head);
 			log_list_head.head = log_item;
 			if(!log_item)
@@ -1360,6 +1362,7 @@ int rsbac_log(int type, char * buf, int len)
 		log_item = log_list_head.head;
 		while (log_item) {
 			log_item = log_item->next;
+			kfree(log_list_head.head->buffer);
 			kfree(log_list_head.head);
 			log_list_head.head = log_item;
 		}
@@ -1404,7 +1407,7 @@ int rsbac_printk(const char *fmt, ...)
 	va_list args;
 	int printed_len;
         char * buf;
-#if defined(CONFIG_RSBAC_RMSG)
+#if defined(CONFIG_RSBAC_RMSG) || defined(CONFIG_RSBAC_LOG_REMOTE)
 	struct rsbac_log_list_item_t * log_item;
 #endif
 
@@ -1449,64 +1452,82 @@ int rsbac_printk(const char *fmt, ...)
 	/* Buffer is ready, now copy into log list */
 #if defined(CONFIG_RSBAC_RMSG)
 	if (rsbac_is_initialized())
-		log_item = rsbac_kmalloc(sizeof(*log_item) + printed_len + 12);
+		log_item = rsbac_kmalloc(sizeof(*log_item));
 	else
-		log_item = kmalloc(sizeof(*log_item) + printed_len + 12, GFP_ATOMIC);
-	if(log_item) {
-		memcpy(log_item->buffer, buf, printed_len + 11);
-		log_item->buffer[printed_len + 11] = 0;
-		log_item->size = printed_len + 11;
-		log_item->next = NULL;
-		spin_lock(&rsbac_log_lock);
-		if (log_list_head.tail) {
-			log_list_head.tail->next = log_item;
+		log_item = kmalloc(sizeof(*log_item), GFP_ATOMIC);
+	if(likely(log_item)) {
+		if (rsbac_is_initialized())
+			log_item->buffer = rsbac_kmalloc(printed_len + 12);
+		else
+			log_item->buffer = kmalloc(printed_len + 12, GFP_ATOMIC);
+		if(log_item->buffer) {
+			memcpy(log_item->buffer, buf, printed_len + 11);
+			log_item->buffer[printed_len + 11] = 0;
+			log_item->size = printed_len + 11;
+			log_item->next = NULL;
+			spin_lock(&rsbac_log_lock);
+			if (log_list_head.tail) {
+				log_list_head.tail->next = log_item;
+			} else {
+				log_list_head.head = log_item;
+			}
+			log_list_head.tail = log_item;
+			log_list_head.count++;
+			while(log_list_head.count > rsbac_rmsg_maxentries) {
+				log_item = log_list_head.head;
+				log_list_head.head = log_item->next;
+				log_list_head.count--;
+				log_list_head.lost++;
+				kfree(log_item->buffer);
+				kfree(log_item);
+			}
+			spin_unlock(&rsbac_log_lock);
+			wake_up_interruptible(&rlog_wait);
 		} else {
-			log_list_head.head = log_item;
-		}
-		log_list_head.tail = log_item;
-		log_list_head.count++;
-		while(log_list_head.count > rsbac_rmsg_maxentries) {
-			log_item = log_list_head.head;
-			log_list_head.head = log_item->next;
-			log_list_head.count--;
-			log_list_head.lost++;
 			kfree(log_item);
 		}
-		spin_unlock(&rsbac_log_lock);
-		wake_up_interruptible(&rlog_wait);
 	}
 #endif
 
 #if defined(CONFIG_RSBAC_LOG_REMOTE)
 	/* Copy into remote log list */
 	if (rsbac_is_initialized())
-		log_item = rsbac_kmalloc(sizeof(*log_item) + printed_len + 12);
+		log_item = rsbac_kmalloc(sizeof(*log_item));
 	else
-		log_item = kmalloc(sizeof(*log_item) + printed_len + 12, GFP_ATOMIC);
-	if(log_item) {
-		memcpy(log_item->buffer, buf, printed_len + 11);
-		log_item->buffer[printed_len + 11] = 0;
-		log_item->size = printed_len + 11;
-		log_item->next = NULL;
-		spin_lock(&rsbac_log_remote_lock);
-		if (remote_log_list_head.tail) {
-			remote_log_list_head.tail->next = log_item;
+		log_item = kmalloc(sizeof(*log_item), GFP_ATOMIC);
+	if(likely(log_item)) {
+		if (rsbac_is_initialized())
+			log_item->buffer = rsbac_kmalloc(printed_len + 12);
+		else
+			log_item->buffer = kmalloc(printed_len + 12, GFP_ATOMIC);
+		if(log_item->buffer) {
+			memcpy(log_item->buffer, buf, printed_len + 11);
+			log_item->buffer[printed_len + 11] = 0;
+			log_item->size = printed_len + 11;
+			log_item->next = NULL;
+			spin_lock(&rsbac_log_remote_lock);
+			if (remote_log_list_head.tail) {
+				remote_log_list_head.tail->next = log_item;
+			} else {
+				remote_log_list_head.head = log_item;
+			}
+			remote_log_list_head.tail = log_item;
+			remote_log_list_head.count++;
+			while(remote_log_list_head.count > rsbac_log_remote_maxentries) {
+				log_item = remote_log_list_head.head;
+				remote_log_list_head.head = log_item->next;
+				remote_log_list_head.count--;
+				remote_log_list_head.lost++;
+				kfree(log_item->buffer);
+				kfree(log_item);
+			}
+			spin_unlock(&rsbac_log_remote_lock);
+#ifdef CONFIG_RSBAC_LOG_REMOTE_SYNC
+			wake_up_interruptible(&rsbaclogd_wait);
+#endif
 		} else {
-			remote_log_list_head.head = log_item;
-		}
-		remote_log_list_head.tail = log_item;
-		remote_log_list_head.count++;
-		while(remote_log_list_head.count > rsbac_log_remote_maxentries) {
-			log_item = remote_log_list_head.head;
-			remote_log_list_head.head = log_item->next;
-			remote_log_list_head.count--;
-			remote_log_list_head.lost++;
 			kfree(log_item);
 		}
-		spin_unlock(&rsbac_log_remote_lock);
-#ifdef CONFIG_RSBAC_LOG_REMOTE_SYNC
-		wake_up_interruptible(&rsbaclogd_wait);
-#endif
 	}
 #endif
 
@@ -4804,6 +4825,7 @@ static int rsbaclogd(void * dummy)
                 break;
               }
 	    else {
+		kfree(log_item->buffer);
 		kfree(log_item);
 	    }
           }
