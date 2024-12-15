@@ -1,8 +1,8 @@
 /*************************************************** */
 /* Rule Set Based Access Control                     */
-/* Author and (c) 1999-2020: Amon Ott <ao@rsbac.org> */
+/* Author and (c) 1999-2024: Amon Ott <ao@rsbac.org> */
 /* Generic lists - internal structures               */
-/* Last modified: 27/Mar/2020                        */
+/* Last modified: 15/Dec/2024                        */
 /*************************************************** */
 
 #ifndef __RSBAC_GEN_LISTS_H
@@ -216,7 +216,6 @@ struct rsbac_list_buffer_t {
 };
 
 #define RSBAC_LIST_BUFFER_SIZE 8192
-#define RSBAC_LIST_BUFFER_DATA_SIZE (RSBAC_LIST_BUFFER_SIZE - sizeof(struct rsbac_list_buffer_t))
 
 struct rsbac_list_write_item_t {
 	struct rsbac_list_write_item_t *prev;
