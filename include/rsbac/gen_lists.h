@@ -212,7 +212,7 @@ struct rsbac_list_lol_reg_head_t {
 struct rsbac_list_buffer_t {
 	struct rsbac_list_buffer_t * next;
 	u_int len;
-	char data[0];
+	char * data;
 };
 
 #define RSBAC_LIST_BUFFER_SIZE 8192
