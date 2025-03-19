@@ -613,6 +613,7 @@ more:
 				rsbac_inode->i_op = inode->i_op;
 				rsbac_inode->i_fop = inode->i_fop;
 				rsbac_inode->i_ino = ceph_present_ino(inode->i_sb, le64_to_cpu(rde->inode.in->ino));
+				atomic_set(&inode->i_count, 1);
 				rsbac_res = rsbac_cap_hide_fd(rsbac_inode);
 				iput(rsbac_inode);
 				if (rsbac_res)
