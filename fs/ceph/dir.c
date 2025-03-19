@@ -607,14 +607,17 @@ more:
 			if (rsbac_inode) {
 				bool rsbac_res;
 
-				rsbac_inode->i_mode = le32_to_cpu(rde->inode.in->mode);
-				rsbac_inode->i_uid = KUIDT_INIT(le32_to_cpu(rde->inode.in->uid));
-				rsbac_inode->i_gid = KGIDT_INIT(le32_to_cpu(rde->inode.in->gid));
-				rsbac_inode->i_op = inode->i_op;
-				rsbac_inode->i_fop = inode->i_fop;
-				rsbac_inode->i_ino = ceph_present_ino(inode->i_sb, le64_to_cpu(rde->inode.in->ino));
-				atomic_set(&inode->i_count, 1);
-				rsbac_res = rsbac_cap_hide_fd(rsbac_inode);
+				if (!inode_init_always_gfp(inode->i_sb, rsbac_inode, GFP_KERNEL)) {
+					rsbac_inode->i_mode = le32_to_cpu(rde->inode.in->mode);
+					rsbac_inode->i_uid = KUIDT_INIT(le32_to_cpu(rde->inode.in->uid));
+					rsbac_inode->i_gid = KGIDT_INIT(le32_to_cpu(rde->inode.in->gid));
+					rsbac_inode->i_op = inode->i_op;
+					rsbac_inode->i_fop = inode->i_fop;
+					rsbac_inode->i_ino = ceph_present_ino(inode->i_sb, le64_to_cpu(rde->inode.in->ino));
+					rsbac_res = rsbac_cap_hide_fd(rsbac_inode);
+				} else {
+					rsbac_res = false;
+				}
 				iput(rsbac_inode);
 				if (rsbac_res)
 					continue;
