@@ -643,6 +643,7 @@ retry:
 #if defined(CONFIG_RSBAC_CAP_FD_HIDE)
 			if (rsbac_cap_hide_fd(path.dentry->d_inode)) {
 				path_put(&path);
+				putname(name);
 				return -ENOENT;
 			}
 #endif
@@ -659,6 +660,7 @@ retry:
 						A_none,
 						rsbac_attribute_value)) {
 				path_put(&path);
+				putname(name);
 				return -ENOENT;
 			}
 #endif
@@ -669,6 +671,7 @@ retry:
 						A_none,
 						rsbac_attribute_value)) {
 				path_put(&path);
+				putname(name);
 				return -EPERM;
 			}
 #endif
