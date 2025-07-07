@@ -1,11 +1,11 @@
 /*************************************************** */
 /* Rule Set Based Access Control                     */
 /* Implementation of ACI data structures             */
-/* Author and (c) 1999-2024: Amon Ott <ao@rsbac.org> */
+/* Author and (c) 1999-2025: Amon Ott <ao@rsbac.org> */
 /* (some smaller parts copied from fs/namei.c        */
 /*  and others)                                      */
 /*                                                   */
-/* Last modified: 13/Dec/2024                        */
+/* Last modified: 07/Jul/2025                        */
 /*************************************************** */
 
 #include <linux/types.h>
@@ -375,7 +375,7 @@ static rsbac_boolean_t rsbac_type_writable(struct super_block * sb_p)
 
 static rsbac_boolean_t rsbac_device_type_writable(struct rsbac_device_list_item_t *device_p)
 {
-	if (!device_p || !device_p->vfsmount_p || !device_p->vfsmount_p->mnt_sb)
+	if (!device_p || !device_p->vfsmount_p || !device_p->vfsmount_p->mnt_sb || IS_ERR(device_p->vfsmount_p->mnt_sb))
 		return FALSE;
 	return rsbac_type_writable(device_p->vfsmount_p->mnt_sb);
 }
@@ -403,6 +403,7 @@ static rsbac_boolean_t rsbac_want_cache(struct rsbac_device_list_item_t * device
 	    && (   (device_p->major > 1)
 		|| (   device_p->vfsmount_p
 		    && device_p->vfsmount_p->mnt_sb
+		    && !IS_ERR(device_p->vfsmount_p->mnt_sb)
 		    && (
 			   (rsbac_fd_cache_fuse && device_p->vfsmount_p->mnt_sb->s_magic == FUSE_SUPER_MAGIC)
 			|| (rsbac_fd_cache_ceph && device_p->vfsmount_p->mnt_sb->s_magic == CEPH_SUPER_MAGIC)
@@ -2845,6 +2846,7 @@ devices_proc_show(struct seq_file *m, void *v)
 		for (device_p = srcu_dereference(head_p->head, &device_list_srcu[i]); device_p;
 		     device_p = srcu_dereference(device_p->next, &device_list_srcu[i])) {
 			if (device_p->vfsmount_p && device_p->vfsmount_p->mnt_sb
+			    && !IS_ERR(device_p->vfsmount_p->mnt_sb)
 			    && device_p->vfsmount_p->mnt_sb->s_type
 			    && device_p->vfsmount_p->mnt_sb->s_type->name
 			    && real_mount(device_p->vfsmount_p)->mnt_mountpoint) {
@@ -6536,9 +6538,11 @@ static int __init rsbac_do_init(void)
 		__u32 minor;
 
 		while (mount_p) {
+			if (!mount_p->vfsmount_p->mnt_sb || IS_ERR(mount_p->vfsmount_p->mnt_sb))
+				continue;
 			major = RSBAC_MAJOR(mount_p->vfsmount_p->mnt_sb->s_dev);
 			minor = RSBAC_MINOR(mount_p->vfsmount_p->mnt_sb->s_dev);
-			if (mount_p->vfsmount_parent_p) {
+			if (mount_p->vfsmount_parent_p && !IS_ERR(mount_p->vfsmount_parent_p)) {
 				__u32 pmajor;
 				__u32 pminor;
 
@@ -7231,8 +7235,8 @@ int rsbac_mount(struct vfsmount * vfsmount_p, struct vfsmount * vfsmount_parent_
 				current->pid, current->comm);
 		return -RSBAC_EFROMINTERRUPT;
 	}
-	if (!vfsmount_p || !vfsmount_p->mnt_sb) {
-		rsbac_printk(KERN_WARNING "rsbac_mount(): called with NULL pointer\n");
+	if (!vfsmount_p || IS_ERR(vfsmount_p) || !vfsmount_p->mnt_sb || IS_ERR(vfsmount_p->mnt_sb)) {
+		rsbac_printk(KERN_WARNING "rsbac_mount(): called with NULL or ERR pointer\n");
 		return -RSBAC_EINVALIDPOINTER;
 	}
 	if (!rsbac_allow_mounts) {
@@ -7256,7 +7260,7 @@ int rsbac_mount(struct vfsmount * vfsmount_p, struct vfsmount * vfsmount_parent_
 			}
 			rsbac_delayed_root = RSBAC_MKDEV(major, minor);
 		}
-		if (!rsbac_no_delay_init
+		if (   !rsbac_no_delay_init
 		    && ((!RSBAC_MAJOR(rsbac_delayed_root)
 			 && !RSBAC_MINOR(rsbac_delayed_root)
 			 && (MAJOR(vfsmount_p->mnt_sb->s_dev) > 1)
@@ -7301,7 +7305,7 @@ int rsbac_mount(struct vfsmount * vfsmount_p, struct vfsmount * vfsmount_parent_
 		mount_p = kmalloc(sizeof(*mount_p), GFP_KERNEL);
 		if (mount_p) {
 			mount_p->vfsmount_p = mntget(vfsmount_p);
-			if (vfsmount_parent_p)
+			if (vfsmount_parent_p && !IS_ERR(vfsmount_parent_p))
 				mount_p->vfsmount_parent_p = mntget(vfsmount_parent_p);
 			else
 				mount_p->vfsmount_parent_p = NULL;
@@ -7325,7 +7329,7 @@ int rsbac_mount(struct vfsmount * vfsmount_p, struct vfsmount * vfsmount_parent_
 	major = RSBAC_MAJOR(vfsmount_p->mnt_sb->s_dev);
 	minor = RSBAC_MINOR(vfsmount_p->mnt_sb->s_dev);
 	rsbac_pr_debug(stack, "free stack: %lu\n", rsbac_stack_free_space());
-	if (vfsmount_parent_p) {
+	if (vfsmount_parent_p && !IS_ERR(vfsmount_parent_p)) {
 		__u32 pmajor;
 		__u32 pminor;
 
@@ -8044,11 +8048,14 @@ int rsbac_get_parent(enum rsbac_target_t target,
 		if (!device_p
 		    || !device_p->vfsmount_p
 		    || !real_mount(device_p->vfsmount_p)->mnt_mountpoint
+		    || IS_ERR(real_mount(device_p->vfsmount_p)->mnt_mountpoint)
 		    || !real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_parent
+		    || IS_ERR(real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_parent)
 		    || (real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_parent == real_mount(device_p->vfsmount_p)->mnt_mountpoint)
 		    || !real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_parent->d_inode
 		    || !real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_parent->d_inode->i_ino
 		    || !real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_sb
+		    || IS_ERR(real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_sb)
 		    || !real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_sb->s_dev
 		    || (real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_sb->s_dev == tid.file.device)) {
 			/* free access to device_list_head */
