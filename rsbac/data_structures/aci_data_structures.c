@@ -5,7 +5,7 @@
 /* (some smaller parts copied from fs/namei.c        */
 /*  and others)                                      */
 /*                                                   */
-/* Last modified: 07/Jul/2025                        */
+/* Last modified: 08/Jul/2025                        */
 /*************************************************** */
 
 #include <linux/types.h>
@@ -375,7 +375,7 @@ static rsbac_boolean_t rsbac_type_writable(struct super_block * sb_p)
 
 static rsbac_boolean_t rsbac_device_type_writable(struct rsbac_device_list_item_t *device_p)
 {
-	if (!device_p || !device_p->vfsmount_p || !device_p->vfsmount_p->mnt_sb || IS_ERR(device_p->vfsmount_p->mnt_sb))
+	if (!device_p || !device_p->vfsmount_p || IS_ERR_OR_NULL(device_p->vfsmount_p->mnt_sb))
 		return FALSE;
 	return rsbac_type_writable(device_p->vfsmount_p->mnt_sb);
 }
@@ -402,8 +402,7 @@ static rsbac_boolean_t rsbac_want_cache(struct rsbac_device_list_item_t * device
 	if (   !rsbac_fd_cache_disable
 	    && (   (device_p->major > 1)
 		|| (   device_p->vfsmount_p
-		    && device_p->vfsmount_p->mnt_sb
-		    && !IS_ERR(device_p->vfsmount_p->mnt_sb)
+		    && !IS_ERR_OR_NULL(device_p->vfsmount_p->mnt_sb)
 		    && (
 			   (rsbac_fd_cache_fuse && device_p->vfsmount_p->mnt_sb->s_magic == FUSE_SUPER_MAGIC)
 			|| (rsbac_fd_cache_ceph && device_p->vfsmount_p->mnt_sb->s_magic == CEPH_SUPER_MAGIC)
@@ -2553,7 +2552,7 @@ static int rsbac_rename(struct mnt_idmap * rsbac_mnt_idmap, int dir_fd, const ch
 	new_dentry = lookup_one_len(bname,
 				 dir_dentry,
 				 strlen(bname));
-	if (!new_dentry || IS_ERR(new_dentry)) {
+	if (IS_ERR_OR_NULL(new_dentry)) {
 		inode_unlock(dir_dentry->d_inode);
 		dput(old_dentry);
 		rsbac_pr_debug(ds, "rsbac_rename(): new name %s not found, no rename possible\n",
@@ -2845,8 +2844,8 @@ devices_proc_show(struct seq_file *m, void *v)
 		head_p = srcu_dereference(device_head_p[i], &device_list_srcu[i]);
 		for (device_p = srcu_dereference(head_p->head, &device_list_srcu[i]); device_p;
 		     device_p = srcu_dereference(device_p->next, &device_list_srcu[i])) {
-			if (device_p->vfsmount_p && device_p->vfsmount_p->mnt_sb
-			    && !IS_ERR(device_p->vfsmount_p->mnt_sb)
+			if (   device_p->vfsmount_p
+			    && !IS_ERR_OR_NULL(device_p->vfsmount_p->mnt_sb)
 			    && device_p->vfsmount_p->mnt_sb->s_type
 			    && device_p->vfsmount_p->mnt_sb->s_type->name
 			    && real_mount(device_p->vfsmount_p)->mnt_mountpoint) {
@@ -6538,11 +6537,11 @@ static int __init rsbac_do_init(void)
 		__u32 minor;
 
 		while (mount_p) {
-			if (!mount_p->vfsmount_p->mnt_sb || IS_ERR(mount_p->vfsmount_p->mnt_sb))
+			if (IS_ERR_OR_NULL(mount_p->vfsmount_p->mnt_sb))
 				continue;
 			major = RSBAC_MAJOR(mount_p->vfsmount_p->mnt_sb->s_dev);
 			minor = RSBAC_MINOR(mount_p->vfsmount_p->mnt_sb->s_dev);
-			if (mount_p->vfsmount_parent_p && !IS_ERR(mount_p->vfsmount_parent_p)) {
+			if (!IS_ERR_OR_NULL(mount_p->vfsmount_parent_p)) {
 				__u32 pmajor;
 				__u32 pminor;
 
@@ -7235,7 +7234,7 @@ int rsbac_mount(struct vfsmount * vfsmount_p, struct vfsmount * vfsmount_parent_
 				current->pid, current->comm);
 		return -RSBAC_EFROMINTERRUPT;
 	}
-	if (!vfsmount_p || IS_ERR(vfsmount_p) || !vfsmount_p->mnt_sb || IS_ERR(vfsmount_p->mnt_sb)) {
+	if (IS_ERR_OR_NULL(vfsmount_p) || IS_ERR_OR_NULL(vfsmount_p->mnt_sb)) {
 		rsbac_printk(KERN_WARNING "rsbac_mount(): called with NULL or ERR pointer\n");
 		return -RSBAC_EINVALIDPOINTER;
 	}
@@ -7305,7 +7304,7 @@ int rsbac_mount(struct vfsmount * vfsmount_p, struct vfsmount * vfsmount_parent_
 		mount_p = kmalloc(sizeof(*mount_p), GFP_KERNEL);
 		if (mount_p) {
 			mount_p->vfsmount_p = mntget(vfsmount_p);
-			if (vfsmount_parent_p && !IS_ERR(vfsmount_parent_p))
+			if (!IS_ERR_OR_NULL(vfsmount_parent_p))
 				mount_p->vfsmount_parent_p = mntget(vfsmount_parent_p);
 			else
 				mount_p->vfsmount_parent_p = NULL;
@@ -7329,7 +7328,7 @@ int rsbac_mount(struct vfsmount * vfsmount_p, struct vfsmount * vfsmount_parent_
 	major = RSBAC_MAJOR(vfsmount_p->mnt_sb->s_dev);
 	minor = RSBAC_MINOR(vfsmount_p->mnt_sb->s_dev);
 	rsbac_pr_debug(stack, "free stack: %lu\n", rsbac_stack_free_space());
-	if (vfsmount_parent_p && !IS_ERR(vfsmount_parent_p)) {
+	if (!IS_ERR_OR_NULL(vfsmount_parent_p)) {
 		__u32 pmajor;
 		__u32 pminor;
 
@@ -8022,7 +8021,7 @@ int rsbac_get_parent(enum rsbac_target_t target,
 		return -RSBAC_EINVALIDTARGET;
 	}
 
-	if (!tid.file.dentry_p)
+	if (IS_ERR_OR_NULL(tid.file.dentry_p))
 		return -RSBAC_ENOTFOUND;
 
 #ifdef CONFIG_RSBAC_XSTATS
@@ -8030,7 +8029,7 @@ int rsbac_get_parent(enum rsbac_target_t target,
 #endif
 	*parent_target_p = T_DIR;
 	/* Is this dentry root of a mounted device? */
-	if (tid.file.dentry_p->d_sb
+	if (   !IS_ERR_OR_NULL(tid.file.dentry_p->d_sb)
 	    && (tid.file.dentry_p->d_sb->s_root == tid.file.dentry_p)
 	    ) {
 		struct rsbac_device_list_item_t *device_p;
@@ -8045,17 +8044,15 @@ int rsbac_get_parent(enum rsbac_target_t target,
 		hash = device_hash(minor);
 		srcu_idx = srcu_read_lock(&device_list_srcu[hash]);
 		device_p = lookup_device(major, minor, hash);
-		if (!device_p
+		if (   !device_p
 		    || !device_p->vfsmount_p
-		    || !real_mount(device_p->vfsmount_p)->mnt_mountpoint
-		    || IS_ERR(real_mount(device_p->vfsmount_p)->mnt_mountpoint)
-		    || !real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_parent
-		    || IS_ERR(real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_parent)
+		    || IS_ERR_OR_NULL(real_mount(device_p->vfsmount_p)->mnt_mountpoint)
+		    || IS_ERR_OR_NULL(real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_parent)
 		    || (real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_parent == real_mount(device_p->vfsmount_p)->mnt_mountpoint)
+		    || IS_ERR_OR_NULL(real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_parent->d_sb)
 		    || !real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_parent->d_inode
 		    || !real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_parent->d_inode->i_ino
-		    || !real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_sb
-		    || IS_ERR(real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_sb)
+		    || IS_ERR_OR_NULL(real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_sb)
 		    || !real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_sb->s_dev
 		    || (real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_sb->s_dev == tid.file.device)) {
 			/* free access to device_list_head */
@@ -8070,16 +8067,16 @@ int rsbac_get_parent(enum rsbac_target_t target,
 		    real_mount(device_p->vfsmount_p)->mnt_mountpoint->d_parent;
 		srcu_read_unlock(&device_list_srcu[hash], srcu_idx);
 	} else {		/* no root of filesystem -> use d_parent, dev keeps unchanged */
-		if (!tid.file.dentry_p->d_parent) {
-			rsbac_printk(KERN_DEBUG "rsbac_get_parent(): oops - d_parent is NULL!\n");
+		if (IS_ERR_OR_NULL(tid.file.dentry_p->d_parent)) {
+			rsbac_printk(KERN_DEBUG "rsbac_get_parent(): oops - d_parent is NULL or ERR!\n");
 			return -RSBAC_ENOTFOUND;
 		}
 		if (tid.file.dentry_p == tid.file.dentry_p->d_parent) {
 			// rsbac_printk(KERN_DEBUG "rsbac_get_parent(): oops - d_parent == dentry_p!\n");
 			return -RSBAC_ENOTFOUND;
 		}
-		if (!tid.file.dentry_p->d_parent->d_inode) {
-			rsbac_printk(KERN_DEBUG "rsbac_get_parent(): oops - d_parent has no d_inode!\n");
+		if (IS_ERR_OR_NULL(tid.file.dentry_p->d_parent->d_inode)) {
+			rsbac_printk(KERN_DEBUG "rsbac_get_parent(): oops - d_parent has no or invalid d_inode!\n");
 			return -RSBAC_ENOTFOUND;
 		}
 		if (!tid.file.dentry_p->d_parent->d_inode->i_ino)
