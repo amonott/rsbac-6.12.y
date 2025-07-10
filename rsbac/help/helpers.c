@@ -441,10 +441,12 @@ rsbac_boolean_t rsbac_cap_hide_fd(struct inode * target_inode)
 	}
 #endif
 
-	rsbac_pr_debug(adf_cap, "FD hiding: process %u(%s), process uid %u, inode %u, owner %u, mode %o!\n",
+	rsbac_pr_debug(adf_cap, "FD hiding: process %u(%s), process uid %u, dev %02u:%02u, inode %u, owner %u, mode %o!\n",
 			pid_nr(task_pid(current)),
 			current->comm,
 			current_uid(),
+			target_inode->i_sb ? RSBAC_MAJOR(target_inode->i_sb->s_dev) : RSBAC_AUTO_DEV_NUM,
+			target_inode->i_sb ? RSBAC_MINOR(target_inode->i_sb->s_dev) : RSBAC_AUTO_DEV_NUM,
 			target_inode->i_ino,
 			target_inode->i_uid,
 			target_inode->i_mode);
