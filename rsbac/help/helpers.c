@@ -388,6 +388,10 @@ rsbac_boolean_t rsbac_cap_hide_fd(struct inode * target_inode)
 		return FALSE;
 	}
 
+	if (uid_eq(target_inode->i_uid, current_uid()))
+		return FALSE;
+	if (uid_eq(target_inode->i_uid, current_euid()))
+		return FALSE;
 	if (uid_eq(target_inode->i_uid, current_fsuid()))
 		return FALSE;
 	if (unlikely(target_inode->i_sb->s_magic == CEPH_SUPER_MAGIC && target_inode->i_op && target_inode->i_op->permission)) {
