@@ -20098,10 +20098,10 @@ RSBAC
 M:	Amon Ott <ao@rsbac.org>
 L:	rsbac@rsbac.org
 W:	https://www.rsbac.org
-T:	git git://git.rsbac.org/linux-4.19.y.git
+T:	git git://git.rsbac.org/linux-6.12.y.git
 S:	Maintained
 F:	rsbac/
-F:	include/rsbac
+F:	include/rsbac/
 
 RTASE ETHERNET DRIVER
 M:	Justin Lai <justinlai0215@realtek.com>

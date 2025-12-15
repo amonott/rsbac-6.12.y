@@ -3000,17 +3000,6 @@ int do_sock_setsockopt(struct socket *sock, bool compat, int level,
 	if (err)
 		goto out_put;
 
-	if (!compat)
-		err = BPF_CGROUP_RUN_PROG_SETSOCKOPT(sock->sk, &level, &optname,
-						     optval, &optlen,
-						     &kernel_optval);
-	if (err < 0)
-		goto out_put;
-	if (err > 0) {
-		err = 0;
-		goto out_put;
-	}
-
 #if defined(CONFIG_RSBAC)
 	rsbac_pr_debug(aef, "calling ADF\n");
 	if (sock->ops->family == AF_UNIX) {
@@ -3048,10 +3037,20 @@ int do_sock_setsockopt(struct socket *sock, bool compat, int level,
 				A_setsockopt_level,
 				rsbac_attribute_value)) {
 		err = -EPERM;
-		kfree(kernel_optval);
 		goto out_put;
 	}
 #endif
+
+	if (!compat)
+		err = BPF_CGROUP_RUN_PROG_SETSOCKOPT(sock->sk, &level, &optname,
+						     optval, &optlen,
+						     &kernel_optval);
+	if (err < 0)
+		goto out_put;
+	if (err > 0) {
+		err = 0;
+		goto out_put;
+	}
 
 	if (kernel_optval)
 		optval = KERNEL_SOCKPTR(kernel_optval);
