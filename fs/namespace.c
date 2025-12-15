@@ -394,9 +394,6 @@ out_free_cache:
 bool __mnt_is_readonly(struct vfsmount *mnt)
 {
 #ifdef CONFIG_RSBAC
-	/* HACK - Remove me when switching to full 2.6, pass over the vfsmount
-	 * in init_private_file() instead
-	 */
 	if(!mnt)
 		return 0;
 #endif
@@ -476,9 +473,6 @@ int mnt_get_write_access(struct vfsmount *m)
 	int ret = 0;
 
 #ifdef CONFIG_RSBAC
-	/* HACK - Remove me when switching to full 2.6, pass over the vfsmount
-	 * in init_private_file() instead
-	 */
 	if(!mnt)
 		return 0;
 #endif
@@ -603,9 +597,6 @@ EXPORT_SYMBOL_GPL(mnt_want_write_file);
 void mnt_put_write_access(struct vfsmount *mnt)
 {
 #ifdef CONFIG_RSBAC
-	/* HACK - Remove me when switching to full 2.6, pass over the vfsmount
-	 * in init_private_file() instead
-	 */
 	if(!mnt)
 		return;
 #endif
