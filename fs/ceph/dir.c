@@ -283,6 +283,9 @@ static int __dcache_readdir(struct file *file,  struct dir_context *ctx,
 				do_hide = true;
 #endif
 #if defined(CONFIG_RSBAC_FSOBJ_HIDE)
+#if defined(CONFIG_RSBAC_CAP_FD_HIDE)
+			else {
+#endif
 			rsbac_target = T_FILE;
 			if (S_ISDIR(d_inode(dentry)->i_mode))
 				rsbac_target = T_DIR;
@@ -303,6 +306,9 @@ static int __dcache_readdir(struct file *file,  struct dir_context *ctx,
 						A_none,
 						rsbac_attribute_value))
 				do_hide = true;
+#if defined(CONFIG_RSBAC_CAP_FD_HIDE)
+			}
+#endif
 #endif
 			if (!do_hide) {
 #endif

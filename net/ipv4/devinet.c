@@ -724,6 +724,7 @@ static int inet_rtm_deladdr(struct sk_buff *skb, struct nlmsghdr *nlh,
 				rsbac_target_id,
 				A_none,
 				rsbac_attribute_value)) {
+		NL_SET_ERR_MSG(extack, "ipv4: Permission denied");
 		err = -EPERM;
 		goto errout;
 	}

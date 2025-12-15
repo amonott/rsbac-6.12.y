@@ -323,14 +323,14 @@ unsigned long do_mmap(struct file *file, unsigned long addr,
 			help_name = file->f_path.dentry->d_name.name;
 #endif
 			rsbac_printk(KERN_INFO "do_mmap() [sys_mmap()]: RSBAC mprotect: denied WRITE and EXEC to %s, pid %u(%s)\n",
-					help_name, current->pid, program_name);
+					help_name ? help_name : "(unknown)", current->pid, program_name ? program_name : "(unknown)");
 #ifdef CONFIG_RSBAC_LOG_FULL_PATH
 			if (help_name)
 				rsbac_kfree(help_name);
 #endif
 		} else
 			rsbac_printk(KERN_INFO "do_mmap() [sys_mmap()]: RSBAC mprotect: denied WRITE and EXEC, pid %u(%s)\n",
-					current->pid, program_name);
+					current->pid, program_name ? program_name : "(unknown)");
 		if (program_name)
 			rsbac_kfree(program_name);
 		return -EPERM;

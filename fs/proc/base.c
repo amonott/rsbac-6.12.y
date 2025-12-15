@@ -226,31 +226,30 @@ static int proc_cwd_link(struct dentry *dentry, struct path *path)
 	struct task_struct *task = get_proc_task(d_inode(dentry));
 	int result = -ENOENT;
 
-#ifdef CONFIG_RSBAC
-	union rsbac_target_id_t rsbac_target_id;
-	union rsbac_attribute_value_t rsbac_attribute_value;
+	if (task) {
 
-	if(!task)
-		return result;
-	rsbac_pr_debug(aef, "calling ADF\n");
-	rsbac_target_id.process = get_task_pid(task, PIDTYPE_PID);
-	if (rsbac_target_id.process) {
-		rsbac_attribute_value.dummy = 0;
-		if (!rsbac_adf_request(R_GET_STATUS_DATA,
-					task_pid(current),
-					T_PROCESS,
-					rsbac_target_id,
-					A_none,
-					rsbac_attribute_value)) {
+#ifdef CONFIG_RSBAC
+		union rsbac_target_id_t rsbac_target_id;
+		union rsbac_attribute_value_t rsbac_attribute_value;
+
+		rsbac_pr_debug(aef, "calling ADF\n");
+		rsbac_target_id.process = get_task_pid(task, PIDTYPE_PID);
+		if (rsbac_target_id.process) {
+			rsbac_attribute_value.dummy = 0;
+			if (!rsbac_adf_request(R_GET_STATUS_DATA,
+						task_pid(current),
+						T_PROCESS,
+						rsbac_target_id,
+						A_none,
+						rsbac_attribute_value)) {
+				put_pid(rsbac_target_id.process);
+				put_task_struct(task);
+				return -EPERM;
+			}
 			put_pid(rsbac_target_id.process);
-			put_task_struct(task);
-			return -EPERM;
 		}
-		put_pid(rsbac_target_id.process);
-	}
 #endif
 
-	if (task) {
 		task_lock(task);
 		if (task->fs) {
 			get_fs_pwd(task->fs, path);
@@ -267,33 +266,30 @@ static int proc_root_link(struct dentry *dentry, struct path *path)
 	struct task_struct *task = get_proc_task(d_inode(dentry));
 	int result = -ENOENT;
 
-#ifdef CONFIG_RSBAC
-	union rsbac_target_id_t rsbac_target_id;
-	union rsbac_attribute_value_t rsbac_attribute_value;
-#endif
-
-#ifdef CONFIG_RSBAC
-	if(!task)
-		return result;
-	rsbac_pr_debug(aef, "calling ADF\n");
-	rsbac_target_id.process = get_task_pid(task, PIDTYPE_PID);
-	if (rsbac_target_id.process) {
-		rsbac_attribute_value.dummy = 0;
-		if (!rsbac_adf_request(R_GET_STATUS_DATA,
-					task_pid(current),
-					T_PROCESS,
-					rsbac_target_id,
-					A_none,
-					rsbac_attribute_value)) {
-			put_pid(rsbac_target_id.process);
-			put_task_struct(task);
-			return -EPERM;
-		}
-		put_pid(rsbac_target_id.process);
-	}
-#endif
-
 	if (task) {
+
+#ifdef CONFIG_RSBAC
+		union rsbac_target_id_t rsbac_target_id;
+		union rsbac_attribute_value_t rsbac_attribute_value;
+
+		rsbac_pr_debug(aef, "calling ADF\n");
+		rsbac_target_id.process = get_task_pid(task, PIDTYPE_PID);
+		if (rsbac_target_id.process) {
+			rsbac_attribute_value.dummy = 0;
+			if (!rsbac_adf_request(R_GET_STATUS_DATA,
+						task_pid(current),
+						T_PROCESS,
+						rsbac_target_id,
+						A_none,
+						rsbac_attribute_value)) {
+				put_pid(rsbac_target_id.process);
+				put_task_struct(task);
+				return -EPERM;
+			}
+			put_pid(rsbac_target_id.process);
+		}
+#endif
+
 		result = get_task_root(task, path);
 		put_task_struct(task);
 	}
@@ -1032,15 +1028,13 @@ struct mm_struct *proc_mem_open(struct inode *inode, unsigned int mode)
 	struct task_struct *task = get_proc_task(inode);
 	struct mm_struct *mm = ERR_PTR(-ESRCH);
 
-#ifdef CONFIG_RSBAC
-        enum  rsbac_adf_request_t rsbac_adf_req;
-	union rsbac_target_id_t rsbac_target_id;
-	union rsbac_attribute_value_t rsbac_attribute_value;
-#endif
-
 	if (task) {
 
 #ifdef CONFIG_RSBAC
+	        enum  rsbac_adf_request_t rsbac_adf_req;
+		union rsbac_target_id_t rsbac_target_id;
+		union rsbac_attribute_value_t rsbac_attribute_value;
+
 		rsbac_pr_debug(aef, "calling ADF\n");
 		if (mode & PTRACE_MODE_ATTACH)
 		        rsbac_adf_req = R_TRACE;
