@@ -36,7 +36,6 @@
 
 static const struct inet_diag_handler __rcu **inet_diag_table;
 
-
 struct inet_diag_entry {
 	const __be32 *saddr;
 	const __be32 *daddr;
