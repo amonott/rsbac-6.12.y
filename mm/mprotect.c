@@ -894,14 +894,14 @@ static int do_mprotect_pkey(unsigned long start, size_t len,
 					help_name = vma->vm_file->f_path.dentry->d_name.name;
 #endif
 					rsbac_printk(KERN_INFO "SYSC_mprotect(): RSBAC mprotect: denied WRITE and EXEC to %s, pid %u(%s)\n",
-							help_name, current->pid, program_name);
+							help_name ? help_name : "(unknown)", current->pid, program_name ? program_name : "(unknown)");
 #ifdef CONFIG_RSBAC_LOG_FULL_PATH
 					if (help_name)
 						rsbac_kfree(help_name);
 #endif
 				} else
 					rsbac_printk(KERN_INFO "SYSC_mprotect(): RSBAC mprotect: denied WRITE and EXEC, pid %u(%s)\n",
-							current->pid, program_name);
+							current->pid, program_name ? program_name : "(unknown)");
 				if (program_name)
 					rsbac_kfree(program_name);
 				error = -EPERM;
@@ -912,10 +912,10 @@ static int do_mprotect_pkey(unsigned long start, size_t len,
 				char * program_name = rsbac_get_program_name();
 				if (vma->vm_file && vma->vm_file->f_path.dentry)
 					rsbac_pr_debug(mprotect, "RSBAC mprotect: EXEC -> unset MAYWRITE for %s, pid %u(%s)\n",
-							vma->vm_file->f_path.dentry->d_name.name, current->pid, program_name);
+							vma->vm_file->f_path.dentry->d_name.name, current->pid, program_name ? program_name : "(unknown)");
 				else
 					rsbac_pr_debug(mprotect, "RSBAC mprotect: EXEC -> unset MAYWRITE, pid %u(%s)\n",
-							current->pid, program_name);
+							current->pid, program_name ? program_name : "(unknown)");
 				if (program_name)
 					rsbac_kfree(program_name);
 #endif
@@ -925,10 +925,10 @@ static int do_mprotect_pkey(unsigned long start, size_t len,
 				char * program_name = rsbac_get_program_name();
 				if (vma->vm_file && vma->vm_file->f_path.dentry)
 					rsbac_pr_debug(mprotect, "RSBAC mprotect: WRITE -> unset MAYEXEC for %s, pid %u(%s)\n",
-							vma->vm_file->f_path.dentry->d_name.name, current->pid, program_name);
+							vma->vm_file->f_path.dentry->d_name.name, current->pid, program_name ? program_name : "(unknown)");
 				else
 					rsbac_pr_debug(mprotect, "RSBAC mprotect: WRITE -> unset MAYEXEC, pid %u(%s)\n",
-							current->pid, program_name);
+							current->pid, program_name ? program_name : "(unknown)");
 				if (program_name)
 					rsbac_kfree(program_name);
 #endif

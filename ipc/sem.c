@@ -605,14 +605,14 @@ static int newary(struct ipc_namespace *ns, struct ipc_params *params)
 #ifdef CONFIG_RSBAC_IPC_SEM
 	rsbac_target_id.ipc.id.id_nr = sma->sem_perm.id;
 	rsbac_new_target_id.dummy = 0;
-	if (rsbac_adf_set_attr(R_CREATE,
+	if (unlikely(rsbac_adf_set_attr(R_CREATE,
 				task_pid(current),
 				T_IPC,
 				rsbac_target_id,
 				T_NONE,
 				rsbac_new_target_id,
 				A_none,
-				rsbac_attribute_value))
+				rsbac_attribute_value)))
 		rsbac_printk(KERN_WARNING
 		"newary() [sys_semget()]: rsbac_adf_set_attr() returned error\n");
 #endif
@@ -1556,14 +1556,14 @@ static int semctl_main(struct ipc_namespace *ns, int semid, int semnum,
 #ifdef CONFIG_RSBAC_IPC_SEM
 		if(!err) {
 			rsbac_new_target_id.dummy = 0;
-			if (rsbac_adf_set_attr(R_READ,
+			if (unlikely(rsbac_adf_set_attr(R_READ,
 						task_pid(current),
 						T_IPC,
 						rsbac_target_id,
 						T_NONE,
 						rsbac_new_target_id,
 						A_none,
-						rsbac_attribute_value)) {
+						rsbac_attribute_value))) {
 				rsbac_printk(KERN_WARNING
 						"semctl_main() [sys_semctl()]: rsbac_adf_set_attr() returned error");
 			}
@@ -1609,8 +1609,8 @@ static int semctl_main(struct ipc_namespace *ns, int semid, int semnum,
 					rsbac_target_id,
 					A_none,
 					rsbac_attribute_value)) {
-			err = -EPERM;
 			ipc_rcu_putref(&sma->sem_perm, sem_rcu_free);
+			err = -EPERM;
 			goto out_free;
 		}
 #endif
@@ -1644,14 +1644,14 @@ static int semctl_main(struct ipc_namespace *ns, int semid, int semnum,
                 /* RSBAC: notify ADF of written sem */
 #ifdef CONFIG_RSBAC_IPC_SEM
 		rsbac_new_target_id.dummy = 0;
-		if (rsbac_adf_set_attr(R_WRITE,
+		if (unlikely(rsbac_adf_set_attr(R_WRITE,
 					task_pid(current),
 					T_IPC,
 					rsbac_target_id,
 					T_NONE,
 					rsbac_new_target_id,
 					A_none,
-					rsbac_attribute_value)) {
+					rsbac_attribute_value))) {
 			rsbac_printk(KERN_WARNING
 					"semctl_main() [sys_semctl()]: rsbac_adf_set_attr() returned error");
 		}
@@ -1789,14 +1789,14 @@ static int semctl_down(struct ipc_namespace *ns, int semid,
                 /* RSBAC: notify ADF of deleted sem */
 #ifdef CONFIG_RSBAC_IPC_SEM
 		rsbac_new_target_id.dummy = 0;
-		if (rsbac_adf_set_attr(R_DELETE,
+		if (unlikely(rsbac_adf_set_attr(R_DELETE,
 					task_pid(current),
 					T_IPC,
 					rsbac_target_id,
 					T_NONE,
 					rsbac_new_target_id,
 					A_none,
-					rsbac_attribute_value)) {
+					rsbac_attribute_value))) {
 			rsbac_printk(KERN_WARNING
 					"semctl_down() [sys_semctl()]: rsbac_adf_set_attr() returned error");
 		}
