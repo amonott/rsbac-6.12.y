@@ -1543,6 +1543,7 @@ static int tc_get_qdisc(struct sk_buff *skb, struct nlmsghdr *n,
 				rsbac_target_id,
 				A_none,
 				rsbac_attribute_value)) {
+		NL_SET_ERR_MSG(extack, "Permission denied");
 		return -EPERM;
 	}
 #endif
@@ -1677,6 +1678,7 @@ replay:
 				rsbac_target_id,
 				A_none,
 				rsbac_attribute_value)) {
+		NL_SET_ERR_MSG(extack, "Permission denied");
 		return -EPERM;
 	}
 #endif
@@ -2502,7 +2504,7 @@ static int tc_dump_tclass(struct sk_buff *skb, struct netlink_callback *cb)
 				rsbac_target_id,
 				A_none,
 				rsbac_attribute_value)) {
-		dev_put(dev);
+		cb->args[0] = 0;
 		return -EPERM;
 	}
 #endif
