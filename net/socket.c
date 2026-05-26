@@ -2137,9 +2137,6 @@ int __sys_bind(int fd, struct sockaddr __user *umyaddr, int addrlen)
 
 	err = move_addr_to_kernel(umyaddr, addrlen, &address);
 	if (unlikely(err))
-
-
-
 		return err;
 
 #ifdef CONFIG_RSBAC_NET_OBJ
@@ -2158,7 +2155,6 @@ int __sys_bind(int fd, struct sockaddr __user *umyaddr, int addrlen)
 					A_sock_type,
 					rsbac_attribute_value)) {
 			rsbac_pr_debug(aef, "[sys_socketcall()]: ADF returned NOT_GRANTED\n");
-			fput_light(sock->file, fput_needed);
 			return -EPERM;
 		}
 	}
@@ -2693,7 +2689,6 @@ int __sys_getsockname(int fd, struct sockaddr __user *usockaddr,
 	if (unlikely(!sock))
 		return -ENOTSOCK;
 
-
 	err = security_socket_getsockname(sock);
 	if (err)
 		return err;
@@ -2777,7 +2772,6 @@ int __sys_getpeername(int fd, struct sockaddr __user *usockaddr,
 	sock = sock_from_file(fd_file(f));
 	if (unlikely(!sock))
 		return -ENOTSOCK;
-
 
 	err = security_socket_getpeername(sock);
 	if (err)
@@ -3135,7 +3129,6 @@ int __sys_getsockopt(int fd, int level, int optname, char __user *optval,
 	sock = sock_from_file(fd_file(f));
 	if (unlikely(!sock))
 		return -ENOTSOCK;
-
 
 #if defined(CONFIG_RSBAC)
 	rsbac_pr_debug(aef, "calling ADF\n");
